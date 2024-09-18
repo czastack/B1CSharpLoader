@@ -10,9 +10,9 @@
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
-  <!-- <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="move /Y $(TargetPath) $(OutDir)CSharpManager.bin" />
-  </Target> -->
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\CSharpModBase\CSharpModBase.csproj" />

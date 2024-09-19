@@ -69,7 +69,6 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         std::cout << "domainPtr not found." << std::endl;
         return EXIT_FAILURE;
     }
-    std::cout << "domainPtr " << domainPtr << std::endl;
     auto mono_thread_internal_attach = (mono_thread_internal_attach_t)signature(
         "40 57 48 83 EC 30 8B 15 ? ? ? ? 48 8B F9 65 48 8B 04 25 58 00 00 00 B9 A8 02 00 00 48 8B 04 D0 48 83 3C 01 00").GetPointer();
     if (mono_thread_internal_attach == nullptr) {
@@ -88,18 +87,19 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         std::cout << "ves_icall_System_AppDomain_ExecuteAssembly not found." << std::endl;
         return EXIT_FAILURE;
     }
+    Sleep(30000); // 30s
     void* domain = nullptr;
     for (size_t i = 0; i < 12; i++) {
         domain = *domainPtr;
-        if (domain == nullptr) {
-            Sleep(10000); // 10s
+        if (domain != nullptr) {
+            break;
         }
+        Sleep(10000); // 10s
     }
     if (domain == nullptr) {
         std::cout << "domain is null." << std::endl;
         return EXIT_FAILURE;
     }
-    std::cout << "domain " << domain << std::endl;
 
     void* mono_thread = mono_thread_internal_attach(domain);
     if (mono_thread == nullptr) {
@@ -129,7 +129,7 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         std::cout << "ves_icall_System_AppDomain_ExecuteAssembly failed: " << res << std::endl;
         return EXIT_FAILURE;
     }
-    std::cout << "CSharpLoader init success." << res << std::endl;
+    std::cout << "CSharpLoader init success." << std::endl;
     return EXIT_SUCCESS;
 }
 

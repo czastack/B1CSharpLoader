@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using CSharpModBase.Input;
+using UnrealEngine.Runtime;
 
 namespace CSharpManager
 {
@@ -34,43 +35,40 @@ namespace CSharpManager
             }), IntPtr.Zero);
         }
 
+        private void HandleKeys(List<HotKeyItem> items)
+        {
+            var now = DateTime.Now.Ticks / 10000;
+            var modifiers = KeyUtils.Modifiers;
+            foreach (var item in items)
+            {
+                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key))
+                {
+                    if (item.IsPressed && (item.RepeatMs == 0 || item.LastTriggerMs > 0 && now - item.LastTriggerMs < item.RepeatMs))
+                    {
+                        continue;
+                    }
+                    item.IsPressed = true;
+                    if (item.RunOnGameThread)
+                    {
+                        FThreading.RunOnGameThread(item.Action.Invoke);
+                    }
+                    else
+                    {
+                        item.Action();
+                    }
+                }
+                else if (item.IsPressed)
+                {
+                    item.IsPressed = false;
+                }
+            }
+        }
+
         public void Update()
         {
             if (!IsProgramFocused()) return;
-            var now = DateTime.Now.Ticks / 10000;
-            var modifiers = KeyUtils.Modifiers;
-            foreach (var item in BuiltinHotKeyItems)
-            {
-                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key))
-                {
-                    if (item.IsPressed && (item.RepeatMs == 0 || item.LastTriggerMs > 0 && now - item.LastTriggerMs < item.RepeatMs))
-                    {
-                        continue;
-                    }
-                    item.IsPressed = true;
-                    item.Action();
-                }
-                else if (item.IsPressed)
-                {
-                    item.IsPressed = false;
-                }
-            }
-            foreach (var item in HotKeyItems)
-            {
-                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key))
-                {
-                    if (item.IsPressed && (item.RepeatMs == 0 || item.LastTriggerMs > 0 && now - item.LastTriggerMs < item.RepeatMs))
-                    {
-                        continue;
-                    }
-                    item.IsPressed = true;
-                    item.Action();
-                }
-                else if (item.IsPressed)
-                {
-                    item.IsPressed = false;
-                }
-            }
+            HandleKeys(BuiltinHotKeyItems);
+            HandleKeys(HotKeyItems);
         }
 
         public void Clear()

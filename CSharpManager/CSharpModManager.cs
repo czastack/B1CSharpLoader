@@ -44,10 +44,11 @@ namespace CSharpManager
                        TryLoadDll(Path.Combine(Common.ModDir, "Common", dllName)) ??
                        TryLoadDll(Path.Combine(Common.LoaderDir, dllName));
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 Log.Error($"Load assembly {args.Name} failed:");
-                Log.Error(ex);
+                Log.Error(e);
+                Log.Error(e.StackTrace);
             }
             return Assembly.Load(args.Name);
         }
@@ -113,6 +114,7 @@ namespace CSharpManager
                 {
                     Log.Error($"Load {dllPath} failed:");
                     Log.Error(e);
+                    Log.Error(e.StackTrace);
                 }
             }
         }
@@ -131,6 +133,7 @@ namespace CSharpManager
                 {
                     Log.Error($"DeInit {mod.Name} failed:");
                     Log.Error(e);
+                    Log.Error(e.StackTrace);
                 }
             }
             LoadMods();

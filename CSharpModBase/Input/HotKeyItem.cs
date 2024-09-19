@@ -54,6 +54,7 @@
         /// 正在被按下
         /// </summary>
         public bool IsPressed { get; set; }
+        public bool RunOnGameThread { get; set; } = true;
 
         public HotKeyItem WithKey(ModifierKeys Modifiers, Key Key)
         {

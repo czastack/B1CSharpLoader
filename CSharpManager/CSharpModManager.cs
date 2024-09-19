@@ -1,6 +1,7 @@
 using System.Reflection;
 using CSharpModBase;
 using CSharpModBase.Input;
+using Mono.Cecil;
 
 namespace CSharpManager
 {
@@ -10,12 +11,14 @@ namespace CSharpManager
 
         public List<ICSharpMod> LoadedMods { get; } = new();
         public InputManager InputManager { get; } = new();
+        public bool Develop { get; set; }
         private Thread? loopThread;
 
         static CSharpModManager()
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.AssemblyResolve += AssemblyResolve;
+            currentDomain.UnhandledException += OnUnhandledException;
         }
 
         private static Assembly? AssemblyResolve(object sender, ResolveEventArgs args)
@@ -46,9 +49,16 @@ namespace CSharpManager
             return Assembly.LoadFrom(args.Name);
         }
 
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Log.Error($"UnhandledException: {(Exception)e.ExceptionObject}");
+        }
+
         public CSharpModManager()
         {
             Utils.InitInputManager(InputManager);
+            Develop = true;
+            // TODO: load config from ini
         }
 
         public void LoadMods()
@@ -67,7 +77,19 @@ namespace CSharpManager
                 {
                     Log.Debug($"Load mod from {dllPath}");
                     LoadingModName = Path.GetFileNameWithoutExtension(dllPath);
-                    Assembly assembly = Assembly.LoadFrom(dllPath);
+                    Assembly assembly;
+                    if (Develop)
+                    {
+                        var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath);
+                        assemblyDef.Name.Name += DateTime.Now.ToString("_yyyyMMdd_HHmmssffff");
+                        using MemoryStream stream = new();
+                        assemblyDef.Write(stream);
+                        assembly = Assembly.Load(stream.GetBuffer());
+                    }
+                    else
+                    {
+                        assembly = Assembly.LoadFrom(dllPath);
+                    }
                     foreach (Type type in assembly.GetTypes())
                     {
                         if (ICSharpModType.IsAssignableFrom(type))
@@ -120,12 +142,12 @@ namespace CSharpManager
             loopThread.Start();
         }
 
-        public void Loop()
+        private void Loop()
         {
             while (true)
             {
                 InputManager.Update();
-                Thread.Sleep(100);  // 10ms
+                Thread.Sleep(10);  // 10ms
             }
         }
     }

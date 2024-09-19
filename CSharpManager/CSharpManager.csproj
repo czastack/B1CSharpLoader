@@ -18,4 +18,8 @@
     <ProjectReference Include="..\CSharpModBase\CSharpModBase.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="0.11.5" />
+  </ItemGroup>
+
 </Project>

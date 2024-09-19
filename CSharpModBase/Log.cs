@@ -11,11 +11,13 @@ namespace CSharpModBase
 
         public static void Debug(string message)
         {
+            using ChangeConsoleColor color = new(ConsoleColor.Gray);
             Console.WriteLine($"{DateTimeString} [D] {message}");
         }
 
         public static void Warn(string message)
         {
+            using ChangeConsoleColor color = new(ConsoleColor.Yellow);
             Console.WriteLine($"{DateTimeString} [W] {message}");
         }
 
@@ -28,12 +30,30 @@ namespace CSharpModBase
 
         public static void Error(string message)
         {
+            using ChangeConsoleColor color = new(ConsoleColor.Red);
             Console.Error.WriteLine($"{DateTimeString} [E] {message}");
         }
 
         public static void Error(Exception e)
         {
             Error(e.Message);
+        }
+    }
+
+
+    public readonly struct ChangeConsoleColor : IDisposable
+    {
+        readonly ConsoleColor currentForeground;
+
+        public ChangeConsoleColor(ConsoleColor color)
+        {
+            currentForeground = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+        }
+
+        public void Dispose()
+        {
+            Console.ForegroundColor = currentForeground;
         }
     }
 }

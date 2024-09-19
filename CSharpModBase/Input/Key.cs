@@ -13,6 +13,7 @@ namespace CSharpModBase.Input
         TAB           = 0x09,
         CLEAR         = 0x0C,
         RETURN        = 0x0D,
+        ENTER         = RETURN,
         SHIFT         = 0x10,
         CONTROL       = 0x11,
         MENU          = 0x12,

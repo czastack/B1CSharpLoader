@@ -50,11 +50,14 @@ typedef int (*ves_icall_System_AppDomain_ExecuteAssembly_t)(_MonoAppDomain** ad,
 
 DWORD WINAPI MainThread(LPVOID dwModule)
 {
-    AllocConsole();
-    FILE* fDummy;
-    freopen_s(&fDummy, "CONIN$", "r", stdin);
-    freopen_s(&fDummy, "CONOUT$", "w", stdout);
-    freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, "./CSharpLoader/b1cs.ini");
+    if (enableConsole == 1) {
+        AllocConsole();
+        FILE* fDummy;
+        freopen_s(&fDummy, "CONIN$", "r", stdin);
+        freopen_s(&fDummy, "CONOUT$", "w", stdout);
+        freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    }
 
     signature domain_s("F0 FF 88 B0 00 00 00 48 8B 05 ? ? ? ? 48 3B D8 49 0F 44 C4");
     if (domain_s.GetPointer() == 0) {

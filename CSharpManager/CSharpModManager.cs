@@ -21,6 +21,15 @@ namespace CSharpManager
             currentDomain.UnhandledException += OnUnhandledException;
         }
 
+        private static Assembly? TryLoadDll(string path)
+        {
+            if (File.Exists(path))
+            {
+                return Assembly.LoadFrom(path);
+            }
+            return null;
+        }
+
         private static Assembly? AssemblyResolve(object sender, ResolveEventArgs args)
         {
             try
@@ -30,23 +39,17 @@ namespace CSharpManager
                     return null;
                 }
                 string modName = LoadingModName;
-                string assemblyPath = Path.Combine(Common.ModDir, modName, $"{args.Name}.dll");
-                if (File.Exists(assemblyPath))
-                {
-                    return Assembly.LoadFrom(assemblyPath);
-                }
-                string assemblyPathCommon = Path.Combine(Common.ModDir, "Common", $"{args.Name}.dll");
-                if (File.Exists(assemblyPathCommon))
-                {
-                    return Assembly.LoadFrom(assemblyPathCommon);
-                }
+                string dllName = $"{new AssemblyName(args.Name).Name}.dll";
+                return TryLoadDll(Path.Combine(Common.ModDir, modName, dllName)) ??
+                       TryLoadDll(Path.Combine(Common.ModDir, "Common", dllName)) ??
+                       TryLoadDll(Path.Combine(Common.LoaderDir, dllName));
             }
             catch (Exception ex)
             {
                 Log.Error($"Load assembly {args.Name} failed:");
                 Log.Error(ex);
             }
-            return Assembly.LoadFrom(args.Name);
+            return Assembly.Load(args.Name);
         }
 
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -57,8 +60,9 @@ namespace CSharpManager
         public CSharpModManager()
         {
             Utils.InitInputManager(InputManager);
-            Develop = true;
-            // TODO: load config from ini
+            // load config from ini
+            Ini iniFile = new(Path.Combine(Common.LoaderDir, "b1cs.ini"));
+            Develop = iniFile.GetValue("Develop", "Settings").Trim() == "1";
         }
 
         public void LoadMods()

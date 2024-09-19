@@ -11,14 +11,14 @@ namespace CSharpModBase
             InputManager = inputManager;
         }
 
-        public static void RegisterKeyBind(Key key, Action action)
+        public static HotKeyItem RegisterKeyBind(Key key, Action action)
         {
-            InputManager?.RegisterKeyBind(key, action);
+            return InputManager!.RegisterKeyBind(key, action);
         }
 
-        public static void RegisterKeyBind(ModifierKeys modifiers, Key key, Action action)
+        public static HotKeyItem RegisterKeyBind(ModifierKeys modifiers, Key key, Action action)
         {
-            InputManager?.RegisterKeyBind(modifiers, key, action);
+            return InputManager!.RegisterKeyBind(modifiers, key, action);
         }
     }
 }

@@ -11,7 +11,7 @@
 
 安装路径
 ```
-b1/
+b1/Binaries/Win64/
   CSharpLoader/
     Data/
     Mods/
@@ -24,6 +24,8 @@ b1/
     b1cs.ini
   hid.dll
 ```
+
+mod的dll需要放在CSharpLoader/Mods/里面
 
 ## 模块介绍
 
@@ -64,7 +66,8 @@ public class MyMod : ICSharpMod
 }
 ```
 
-Mod加载时会创建该类的实例，调用Init，重新加载时会调用DeInit()，再重新创建新实例。Ctrl+Shift+R重新加载Mod，Develop模式下，每次都会加载新的Assembly，静态变量都会重置。旧Asembly还会保留在进程中，所以请确保DeInit函数里结束mod的后台线程（如有）和事件监听。
+Mod加载时会创建该类的实例，调用Init。Manager重新加载mod时会调用每个mod的DeInit()，再执行加载mod的流程。  
+Ctrl+Shift+R重新加载Mod，Develop模式下，每次都会加载成新的Assembly，旧Asembly还会保留在进程中，所以请确保DeInit函数里结束mod的后台线程（如有）和事件监听，mod本身不用清理按键监听，Manager处理好。
 
 ### 按键监听
 
@@ -95,3 +98,6 @@ DeInit()里调用
 ```C#
 harmony.UnpatchAll();
 ```
+
+### mod的其他依赖
+mod dll的依赖可以放在`CSharpLoader/Mods/<mod文件名不带后缀>/`或者`CSharpLoader/Mods/Common/`中，这样其他Mod也能用里面的依赖

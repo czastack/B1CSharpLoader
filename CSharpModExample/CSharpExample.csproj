@@ -22,7 +22,7 @@
     </ProjectReference>
   </ItemGroup>
 
-  <!-- <ItemGroup>
+  <ItemGroup>
     <Reference Include="BtlSvr.Main">
       <HintPath>..\GameDll\BtlSvr.Main.dll</HintPath>
       <Private>False</Private>
@@ -59,6 +59,6 @@
       <HintPath>..\GameDll\UnrealEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup> -->
+  </ItemGroup>
 
 </Project>

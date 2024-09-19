@@ -2,17 +2,17 @@
 
 [中文](README.md)
 
-## About this
+## About
 
 BlackMythWukong use USharp as script engine, many logic implements in charp (see GameDll).  
 This mod loader allow you to load mods written in C#.  
-These mods can call csharp api from b1-managed and Unreal Engine.  
+C# mods can call csharp api from b1-managed and Unreal Engine.  
 
 ## How to use
 
 install path
 ```
-b1/
+b1/Binaries/Win64/
   CSharpLoader/
     Data/
     Mods/
@@ -65,7 +65,10 @@ public class MyMod : ICSharpMod
 }
 ```
 
-Manager will create instance of class that implements ICSharpMod and call Init. When reload mods by Ctrl+Shift+R, will call DeInit(), when reload all mods. In Develop mode, mod dll will load as new Assembly, why Asembly keep in memory. So make sure finish your background thread and clear event handler in DeInit function。
+Manager will create instance of class that implements ICSharpMod and call Init.  
+When reload mods by Ctrl+Shift+R, Manager will call DeInit() of loaded mods, then reload all mods.  
+In Develop mode, mod dll will load as new Assembly, why old Assembly keep in memory. So make sure finish your background thread and clear event handler in DeInit function..
+Mod do not need to clear key listening, manager will do it.
 
 
 ### KeyBind
@@ -94,3 +97,6 @@ call in DeInit()
 ```C#
 harmony.UnpatchAll();
 ```
+
+### mod deps
+mod depends dll can put in `CSharpLoader/Mods/<mod file name>/` or `CSharpLoader/Mods/Common/`, Common is shared by all mods.

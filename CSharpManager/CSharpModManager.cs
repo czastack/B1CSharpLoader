@@ -63,7 +63,8 @@ namespace CSharpManager
             Utils.InitInputManager(InputManager);
             // load config from ini
             Ini iniFile = new(Path.Combine(Common.LoaderDir, "b1cs.ini"));
-            Develop = iniFile.GetValue("Develop", "Settings").Trim() == "1";
+            Develop = iniFile.GetValue("Develop", "Settings", "1").Trim() == "1";
+            Log.Debug($"Develop: {Develop}");
         }
 
         public void LoadMods()
@@ -85,7 +86,7 @@ namespace CSharpManager
                     Assembly assembly;
                     if (Develop)
                     {
-                        var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath);
+                        using var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath);
                         assemblyDef.Name.Name += DateTime.Now.ToString("_yyyyMMdd_HHmmssffff");
                         using MemoryStream stream = new();
                         assemblyDef.Write(stream);

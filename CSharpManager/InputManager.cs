@@ -68,12 +68,18 @@ namespace CSharpManager
         {
             if (!IsProgramFocused()) return;
             HandleKeys(BuiltinHotKeyItems);
-            HandleKeys(HotKeyItems);
+            lock (HotKeyItems)
+            {
+                HandleKeys(HotKeyItems);
+            }
         }
 
         public void Clear()
         {
-            HotKeyItems.Clear();
+            lock (HotKeyItems)
+            {
+                HotKeyItems.Clear();
+            }
         }
 
         public bool IsProgramFocused()
@@ -120,17 +126,25 @@ namespace CSharpManager
             return item;
         }
 
+        public void RegisterKeyBind(HotKeyItem item)
+        {
+            lock (HotKeyItems)
+            {
+                HotKeyItems.Add(item);
+            }
+        }
+
         public HotKeyItem RegisterKeyBind(Key key, Action action)
         {
             var item = new HotKeyItem(ModifierKeys.None, key, action);
-            HotKeyItems.Add(item);
+            RegisterKeyBind(item);
             return item;
         }
 
         public HotKeyItem RegisterKeyBind(ModifierKeys modifiers, Key key, Action action)
         {
             var item = new HotKeyItem(modifiers, key, action);
-            HotKeyItems.Add(item);
+            RegisterKeyBind(item);
             return item;
         }
     }

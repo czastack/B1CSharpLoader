@@ -48,7 +48,6 @@ namespace CSharpManager
             {
                 Log.Error($"Load assembly {args.Name} failed:");
                 Log.Error(e);
-                Log.Error(e.StackTrace);
             }
             return Assembly.Load(args.Name);
         }
@@ -115,7 +114,6 @@ namespace CSharpManager
                 {
                     Log.Error($"Load {dllPath} failed:");
                     Log.Error(e);
-                    Log.Error(e.StackTrace);
                 }
             }
         }
@@ -134,7 +132,6 @@ namespace CSharpManager
                 {
                     Log.Error($"DeInit {mod.Name} failed:");
                     Log.Error(e);
-                    Log.Error(e.StackTrace);
                 }
             }
             LoadMods();

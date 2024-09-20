@@ -31,7 +31,6 @@ namespace CSharpModBase
             catch (Exception e)
             {
                 Log.Error(e);
-                Log.Error(e.StackTrace);
             };
         }
 
@@ -46,7 +45,6 @@ namespace CSharpModBase
                 catch (Exception e)
                 {
                     Log.Error(e);
-                    Log.Error(e.StackTrace);
                 }
             });
         }

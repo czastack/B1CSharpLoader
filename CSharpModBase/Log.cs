@@ -37,6 +37,7 @@ namespace CSharpModBase
         public static void Error(Exception e)
         {
             Error(e.Message);
+            Error(e.StackTrace);
         }
     }
 

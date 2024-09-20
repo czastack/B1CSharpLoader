@@ -13,4 +13,11 @@
     <PackageReference Include="Lib.Harmony" Version="2.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="UnrealEngine.Runtime">
+      <HintPath>..\GameDll\UnrealEngine.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>

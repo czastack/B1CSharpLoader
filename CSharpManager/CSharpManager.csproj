@@ -22,11 +22,4 @@
     <PackageReference Include="Mono.Cecil" Version="0.11.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="UnrealEngine.Runtime">
-      <HintPath>..\GameDll\UnrealEngine.Runtime.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-
 </Project>

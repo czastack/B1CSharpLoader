@@ -1,4 +1,5 @@
 using CSharpModBase.Input;
+using UnrealEngine.Runtime;
 
 namespace CSharpModBase
 {
@@ -19,6 +20,35 @@ namespace CSharpModBase
         public static HotKeyItem RegisterKeyBind(ModifierKeys modifiers, Key key, Action action)
         {
             return InputManager!.RegisterKeyBind(modifiers, key, action);
+        }
+
+        public static void TryRun(Action aciton)
+        {
+            try
+            {
+                aciton();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+                Log.Error(e.StackTrace);
+            };
+        }
+
+        public static void TryRunOnGameThread(Action aciton)
+        {
+            FThreading.RunOnGameThread(() =>
+            {
+                try
+                {
+                    aciton();
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                    Log.Error(e.StackTrace);
+                }
+            });
         }
     }
 }

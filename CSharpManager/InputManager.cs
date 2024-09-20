@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using CSharpModBase;
 using CSharpModBase.Input;
-using UnrealEngine.Runtime;
 
 namespace CSharpManager
 {
@@ -50,11 +50,11 @@ namespace CSharpManager
                     item.IsPressed = true;
                     if (item.RunOnGameThread)
                     {
-                        FThreading.RunOnGameThread(item.Action.Invoke);
+                        Utils.TryRunOnGameThread(item.Action);
                     }
                     else
                     {
-                        item.Action();
+                        Utils.TryRun(item.Action);
                     }
                 }
                 else if (item.IsPressed)

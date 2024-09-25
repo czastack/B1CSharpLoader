@@ -9,7 +9,7 @@
 
 ## 使用说明
 
-安装路径
+### 安装路径
 ```
 b1/Binaries/Win64/
   CSharpLoader/
@@ -25,7 +25,12 @@ b1/Binaries/Win64/
   hid.dll
 ```
 
-mod的dll需要放在CSharpLoader/Mods/里面
+mod的dll需要放在`CSharpLoader/Mods/<ModName>/<ModName>.dll`里面，例如`CSharpLoader/Mods/CSharpExample/CSharpExample.dll`
+
+### 配置
+配置文件CSharpLoader/b1cs.ini
+Develop: 开启调试模式，可以按ctrl+f5重新加载C# mods
+Console: 打开控制台窗口，打印log
 
 ## 模块介绍
 
@@ -42,7 +47,9 @@ mod的dll需要放在CSharpLoader/Mods/里面
 
 ## mod编写教程
 
-参考CSharpModExample
+建议安装.net 8 sdk，方便使用最新的语法。
+开发工具可以使用vscode, visual studio 或者 rider。
+示例工程可以参考CSharpModExample
 
 ### mod入口
 
@@ -67,7 +74,7 @@ public class MyMod : ICSharpMod
 ```
 
 Mod加载时会创建该类的实例，调用Init。Manager重新加载mod时会调用每个mod的DeInit()，再执行加载mod的流程。  
-Ctrl+Shift+R重新加载Mod，Develop模式下，每次都会加载成新的Assembly，旧Asembly还会保留在进程中，所以请确保DeInit函数里结束mod的后台线程（如有）和事件监听，mod本身不用清理按键监听，Manager处理好。
+Ctrl+F5重新加载Mod，Develop模式下，每次都会加载成新的Assembly，旧Asembly还会保留在进程中，所以请确保DeInit函数里结束mod的后台线程（如有）和事件监听，mod本身不用清理按键监听，Manager处理好。
 
 ### 按键监听
 
@@ -78,26 +85,9 @@ Utils.RegisterKeyBind(ModifierKeys.Alt, Key.X, () =>
 });
 ```
 
-### C# hook
+### C# hook (Patch)
 
-参考 [harmony文档](https://harmony.pardeike.net/articles/patching.html)
-
-Init()里调用
-
-```C#
-var harmony = new Harmony("myname");
-var assembly = Assembly.GetExecutingAssembly();
-harmony.PatchAll(assembly);
-
-// or implying current assembly:
-harmony.PatchAll();
-```
-
-DeInit()里调用
-
-```C#
-harmony.UnpatchAll();
-```
+还未实现
 
 ### mod的其他依赖
-mod dll的依赖可以放在`CSharpLoader/Mods/<mod文件名不带后缀>/`或者`CSharpLoader/Mods/Common/`中，这样其他Mod也能用里面的依赖
+mod dll的依赖可以放在`CSharpLoader/Mods/<ModName>/`或者`CSharpLoader/Mods/Common/`中，这样其他Mod也能用里面的依赖

@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using CSharpModBase;
 using CSharpModBase.Input;
 using Mono.Cecil;
@@ -19,6 +24,8 @@ namespace CSharpManager
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.AssemblyResolve += AssemblyResolve;
             currentDomain.UnhandledException += OnUnhandledException;
+
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         }
 
         private static Assembly? TryLoadDll(string path)
@@ -38,9 +45,8 @@ namespace CSharpManager
                 {
                     return null;
                 }
-                string modName = LoadingModName;
                 string dllName = $"{new AssemblyName(args.Name).Name}.dll";
-                return TryLoadDll(Path.Combine(Common.ModDir, modName, dllName)) ??
+                return TryLoadDll(Path.Combine(Common.ModDir, LoadingModName, dllName)) ??
                        TryLoadDll(Path.Combine(Common.ModDir, "Common", dllName)) ??
                        TryLoadDll(Path.Combine(Common.LoaderDir, dllName));
             }
@@ -54,7 +60,14 @@ namespace CSharpManager
 
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Log.Error($"UnhandledException: {(Exception)e.ExceptionObject}");
+            Log.Error($"UnhandledException:");
+            Log.Error((Exception)e.ExceptionObject);
+        }
+
+        private static void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            Log.Error($"UnobservedTaskException:");
+            Log.Error(e.Exception);
         }
 
         public CSharpModManager()
@@ -74,14 +87,16 @@ namespace CSharpManager
                 Log.Error($"Mod dir {Common.ModDir} not exists");
                 return;
             }
-            string[] files = Directory.GetFiles(Common.ModDir, "*.dll");
+            string[] dirs = Directory.GetDirectories(Common.ModDir);
             Type ICSharpModType = typeof(ICSharpMod);
-            foreach (var dllPath in files)
+            foreach (var dir in dirs)
             {
+                LoadingModName = Path.GetFileName(dir);
+                string dllPath = Path.Combine(dir, $"{LoadingModName}.dll");
+                if (!File.Exists(dllPath)) continue;
                 try
                 {
-                    Log.Debug($"Load mod from {dllPath}");
-                    LoadingModName = Path.GetFileNameWithoutExtension(dllPath);
+                    Log.Debug($"======== Loading {dllPath} ========");
                     Assembly assembly;
                     if (Develop)
                     {
@@ -99,12 +114,13 @@ namespace CSharpManager
                     {
                         if (ICSharpModType.IsAssignableFrom(type))
                         {
-                            Log.Debug($"{type} is ICSharpMod");
+                            Log.Debug($"Found ICSharpMod: {type}");
 
                             if (Activator.CreateInstance(type) is ICSharpMod mod)
                             {
                                 mod.Init();
                                 LoadedMods.Add(mod);
+                                Log.Debug($"Loaded mod {mod.Name} {mod.Version}");
                             }
                         }
                     }
@@ -139,7 +155,7 @@ namespace CSharpManager
 
         public void StartLoop()
         {
-            InputManager.RegisterBuiltinKeyBind(ModifierKeys.Control | ModifierKeys.Shift, Key.R, ReloadMods);
+            InputManager.RegisterBuiltinKeyBind(ModifierKeys.Control, Key.F5, ReloadMods);
             loopThread = new Thread(Loop)
             {
                 // IsBackground = true,

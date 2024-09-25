@@ -1,7 +1,22 @@
-﻿namespace CSharpModBase.Input
+﻿using System;
+
+namespace CSharpModBase.Input
 {
-    public class HotKeyData(ModifierKeys modifiers, Key key)
+    public class HotKeyData
     {
+        public HotKeyData(ModifierKeys modifiers, Key key)
+        {
+            Modifiers = modifiers;
+            Key = key;
+        }
+
+        public HotKeyData() : this(ModifierKeys.None, Key.None) {}
+
+        public ModifierKeys Modifiers { get; set; }
+        public Key Key { get; set; }
+        public string KeyString => KeyUtils.KeyToString(Modifiers, Key);
+        public int Code => GetCode(Modifiers, (int)Key);
+
         public static int GetCode(ModifierKeys modifiers, int vk)
         {
             return ((int)modifiers << 16) | vk;
@@ -12,12 +27,6 @@
             return ((int)modifiers << 16) | (int)key;
         }
 
-        public HotKeyData() : this(ModifierKeys.None, Key.None) {}
-
-        public ModifierKeys Modifiers { get; set; } = modifiers;
-        public Key Key { get; set; } = key;
-        public string KeyString => KeyUtils.KeyToString(Modifiers, Key);
-        public int Code => GetCode(Modifiers, (int)Key);
 
         public void SetFromCode(int code)
         {

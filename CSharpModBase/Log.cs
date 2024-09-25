@@ -1,24 +1,38 @@
+using System;
+using System.IO;
+
 namespace CSharpModBase
 {
     public static class Log
     {
         private static string DateTimeString => DateTime.Now.ToString("MM-dd HH:mm:ss");  // .fff
+        // private static readonly StreamWriter LogFile = File.CreateText("CSharpLog.txt");
 
         public static void Info(string message)
         {
-            Console.WriteLine($"{DateTimeString} [I] {message}");
+            string text = $"{DateTimeString} [I] {message}";
+            Console.WriteLine(text);
+            // LogFile.WriteLine(text);
         }
 
         public static void Debug(string message)
         {
-            using ChangeConsoleColor color = new(ConsoleColor.Gray);
-            Console.WriteLine($"{DateTimeString} [D] {message}");
+            using (var color = new ChangeConsoleColor(ConsoleColor.Gray))
+            {
+                string text = $"{DateTimeString} [D] {message}";
+                Console.WriteLine(text);
+                // LogFile.WriteLine(text);
+            }
         }
 
         public static void Warn(string message)
         {
-            using ChangeConsoleColor color = new(ConsoleColor.Yellow);
-            Console.WriteLine($"{DateTimeString} [W] {message}");
+            using (var color = new ChangeConsoleColor(ConsoleColor.Yellow))
+            {
+                string text = $"{DateTimeString} [W] {message}";
+                Console.WriteLine(text);
+                // LogFile.WriteLine(text);
+            }
         }
 
         public static void WarnIf(bool condition, string message)
@@ -30,8 +44,12 @@ namespace CSharpModBase
 
         public static void Error(string message)
         {
-            using ChangeConsoleColor color = new(ConsoleColor.Red);
-            Console.Error.WriteLine($"{DateTimeString} [E] {message}");
+            using (var color = new ChangeConsoleColor(ConsoleColor.Red))
+            {
+                string text = $"{DateTimeString} [E] {message}";
+                Console.Error.WriteLine(text);
+                // LogFile.WriteLine(text);
+            }
         }
 
         public static void Error(Exception e)

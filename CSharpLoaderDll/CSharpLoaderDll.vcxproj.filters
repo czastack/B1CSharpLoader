@@ -24,6 +24,12 @@
     <ClInclude Include="memory.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="hid_dll.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="version_dll.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -36,6 +42,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="hid_dll.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="version_dll.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

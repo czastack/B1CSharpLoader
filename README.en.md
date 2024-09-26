@@ -4,9 +4,8 @@
 
 ## About
 
-BlackMythWukong use USharp as script engine, many logic implements in charp (see GameDll).  
-This mod loader allow you to load mods written in C#.  
-C# mods can call csharp api from b1-managed and Unreal Engine.  
+BlackMythWukong use USharp as script engine, many logic implements in charp (see GameDll). Some api can only access in C#, not in UE c++.  
+This mod loader allow you to load mods written in C#. C# mods can call csharp api from b1-managed and Unreal Engine.  
 
 ## How to use
 
@@ -27,6 +26,11 @@ b1/Binaries/Win64/
 ```
 
 Mod dll should be placed in `CSharpLoader/Mods/<ModName>/<ModName>.dll`, for example `CSharpLoader/Mods/CSharpExample/CSharpExample.dll`
+
+### config file
+CSharpLoader/b1cs.ini
+Develop: press ctrl+f5 reload C# mods
+Console: show console window to print log
 
 ## modules
 

@@ -51,7 +51,6 @@ typedef int (*ves_icall_System_AppDomain_ExecuteAssembly_t)(_MonoAppDomain** ad,
 
 DWORD WINAPI MainThread(LPVOID dwModule)
 {
-    Sleep(30000); // 30s
     UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, "./CSharpLoader/b1cs.ini");
     if (enableConsole == 1) {
         AllocConsole();
@@ -60,6 +59,8 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         freopen_s(&fDummy, "CONOUT$", "w", stdout);
         freopen_s(&fDummy, "CONOUT$", "w", stderr);
     }
+    std::cout << "Wait for CSharpLoader init." << std::endl;
+    Sleep(30000); // 30s
 
     signature domain_s("F0 FF 88 B0 00 00 00 48 8B 05 ? ? ? ? 48 3B D8 49 0F 44 C4");
     if (domain_s.GetPointer() == 0) {

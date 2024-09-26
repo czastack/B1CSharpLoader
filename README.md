@@ -4,14 +4,14 @@
 
 ## 关于
 
-黑神话悟空使用USharp作为脚本引擎，很多逻辑使用charp实现，提供接口给UE使用(见GameDll)。  
+黑神话悟空使用USharp作为脚本引擎，很多逻辑使用charp实现，提供接口给UE使用(见GameDll)，而一些内部接口不能通过UE c++/lua访问。  
 这个mod加载器可以加载c#写的mod。C# mod可以调用USharp端提供的api，包括游戏内部的和USharp包装的UE引擎的api，也可以往游戏内部的事件和委托增加回调。  
 
 ## 使用说明
 
 ### 安装路径
 ```
-b1/Binaries/Win64/
+BlackMythWukong/b1/Binaries/Win64/
   CSharpLoader/
     Data/
     Mods/
@@ -29,8 +29,8 @@ mod的dll需要放在`CSharpLoader/Mods/<ModName>/<ModName>.dll`里面，例如`
 
 ### 配置
 配置文件CSharpLoader/b1cs.ini
-Develop: 开启调试模式，可以按ctrl+f5重新加载C# mods
-Console: 打开控制台窗口，打印log
+Develop: 开启开发模式，可以按ctrl+f5重新加载C# mods
+Console: 显示控制台窗口，打印log
 
 ## 模块介绍
 

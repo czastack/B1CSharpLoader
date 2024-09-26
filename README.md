@@ -25,6 +25,8 @@ BlackMythWukong/b1/Binaries/Win64/
   hid.dll
 ```
 
+如果安装后游戏闪退，尝试把hid.dll改名成version.dll
+
 mod的dll需要放在`CSharpLoader/Mods/<ModName>/<ModName>.dll`里面，例如`CSharpLoader/Mods/CSharpExample/CSharpExample.dll`
 
 ### 配置

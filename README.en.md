@@ -25,6 +25,8 @@ b1/Binaries/Win64/
   hid.dll
 ```
 
+If you can't open the game after installation, try rename hid.dll to version.dll
+
 Mod dll should be placed in `CSharpLoader/Mods/<ModName>/<ModName>.dll`, for example `CSharpLoader/Mods/CSharpExample/CSharpExample.dll`
 
 ### config file

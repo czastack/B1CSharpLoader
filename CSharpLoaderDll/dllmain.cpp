@@ -5,6 +5,14 @@
 #include "hid_dll.hpp"
 #include "version_dll.hpp"
 
+enum class DllType {
+    Unknown,
+    Version,
+    Hid,
+};
+
+static DllType dllType = DllType::Unknown;
+
 struct MonoAssemblyOpenRequest
 {
     uint8_t raw[40];
@@ -51,7 +59,12 @@ typedef int (*ves_icall_System_AppDomain_ExecuteAssembly_t)(_MonoAppDomain** ad,
 
 DWORD WINAPI MainThread(LPVOID dwModule)
 {
+    if (dllType == DllType::Version)
+    {
+        Sleep(2000);
+    }
     UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, "./CSharpLoader/b1cs.ini");
+    UINT initDelay = GetPrivateProfileIntA("Settings", "InitDelay", 30, "./CSharpLoader/b1cs.ini");
     if (enableConsole == 1) {
         AllocConsole();
         FILE* fDummy;
@@ -60,7 +73,7 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         freopen_s(&fDummy, "CONOUT$", "w", stderr);
     }
     std::cout << "Wait for CSharpLoader init." << std::endl;
-    Sleep(30000); // 30s
+    Sleep(initDelay * 1000); // 30s
 
     signature domain_s("F0 FF 88 B0 00 00 00 48 8B 05 ? ? ? ? 48 3B D8 49 0F 44 C4");
     if (domain_s.GetPointer() == 0) {
@@ -135,15 +148,8 @@ DWORD WINAPI MainThread(LPVOID dwModule)
     return EXIT_SUCCESS;
 }
 
-enum class DllType {
-    Unknown,
-    Version,
-    Hid,
-};
-
-static DllType dllType = DllType::Unknown;
-
 void init_dll(HMODULE hModule) {
+    DisableThreadLibraryCalls(hModule);
     wchar_t moduleFullpathFilename[MAX_PATH + 1];
     GetModuleFileNameW(hModule, moduleFullpathFilename, static_cast<UINT>(std::size(moduleFullpathFilename)));
     wchar_t fname[_MAX_FNAME+1];
@@ -160,6 +166,7 @@ void init_dll(HMODULE hModule) {
         dllType = DllType::Hid;
         init_hid_dll();
     }
+    CreateThread(nullptr, 0, MainThread, hModule, 0, nullptr);
 }
 
 void deinit_dll() {
@@ -181,8 +188,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         std::call_once(initFlag, [&]() { init_dll(hModule); });
-        DisableThreadLibraryCalls(hModule);
-        CreateThread(nullptr, 0, MainThread, hModule, 0, nullptr);
         break;
     case DLL_PROCESS_DETACH:
         std::call_once(cleanupFlag, [&]() { deinit_dll(); });

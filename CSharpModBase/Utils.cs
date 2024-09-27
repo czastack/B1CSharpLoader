@@ -23,6 +23,11 @@ namespace CSharpModBase
             return InputManager!.RegisterKeyBind(modifiers, key, action);
         }
 
+        public static HotKeyItem RegisterGamePadBind(GamePadButton button, Action action)
+        {
+            return InputManager!.RegisterGamePadBind(button, action);
+        }
+
         public static void TryRun(Action aciton)
         {
             try

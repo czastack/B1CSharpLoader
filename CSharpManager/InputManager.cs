@@ -13,6 +13,9 @@ namespace CSharpManager
     {
         public List<HotKeyItem> BuiltinHotKeyItems { get; } = new();
         public List<HotKeyItem> HotKeyItems { get; } = new();
+        public bool EnableGamePad { get; set; } = true;
+        public static GamePadButton CurrentGamePadButton { get; set; }
+        // public static GamePadButtonEventHandler? GamePadButtonDown { get; set; }
 
         private IntPtr HWnd;
 
@@ -44,7 +47,8 @@ namespace CSharpManager
             var modifiers = KeyUtils.Modifiers;
             foreach (var item in items)
             {
-                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key))
+                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key) ||
+                    CurrentGamePadButton != GamePadButton.None && item.GamePadButton != GamePadButton.None && CurrentGamePadButton.HasFlag(item.GamePadButton))
                 {
                     if (item.IsPressed && (item.RepeatMs == 0 || item.LastTriggerMs > 0 && now - item.LastTriggerMs < item.RepeatMs))
                     {
@@ -70,6 +74,15 @@ namespace CSharpManager
         public void Update()
         {
             if (!IsProgramFocused()) return;
+            if (EnableGamePad)
+            {
+                GamePadUtils.GetGamePadButtons(out var buttons);
+                // if (buttons != GamePadButton.None)
+                // {
+                //     GamePadButtonDown?.Invoke(new GamePadButtonEvent { Button = buttons });
+                // }
+                CurrentGamePadButton = buttons;
+            }
             HandleKeys(BuiltinHotKeyItems);
             lock (HotKeyItems)
             {
@@ -147,6 +160,16 @@ namespace CSharpManager
         public HotKeyItem RegisterKeyBind(ModifierKeys modifiers, Key key, Action action)
         {
             var item = new HotKeyItem(modifiers, key, action);
+            RegisterKeyBind(item);
+            return item;
+        }
+
+        public HotKeyItem RegisterGamePadBind(GamePadButton button, Action action)
+        {
+            var item = new HotKeyItem(ModifierKeys.None, Key.None, action)
+            {
+                GamePadButton = button
+            };
             RegisterKeyBind(item);
             return item;
         }

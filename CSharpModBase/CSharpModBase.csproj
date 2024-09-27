@@ -13,6 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.XInput" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="UnrealEngine.Runtime">
       <HintPath>..\GameDll\UnrealEngine.Runtime.dll</HintPath>
       <Private>False</Private>

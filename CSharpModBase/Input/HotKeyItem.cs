@@ -14,24 +14,45 @@ namespace CSharpModBase.Input
 
         public ModifierKeys Modifiers { get; set; }
         public Key Key { get; set; }
+        public GamePadButton GamePadButton { get; set; }
+
+        public bool IsValid => Key != Key.None || GamePadButton != GamePadButton.None;
         public string KeyString => KeyUtils.KeyToString(Modifiers, Key);
-        public int Code => GetCode(Modifiers, (int)Key);
 
-        public static int GetCode(ModifierKeys modifiers, int vk)
+        public static uint GetCode(ModifierKeys modifiers, Key key)
         {
-            return ((int)modifiers << 16) | vk;
+            return ((uint)modifiers << 16) | (uint)key;
         }
 
-        public static int GetCode(ModifierKeys modifiers, Key key)
+        public uint Code
         {
-            return ((int)modifiers << 16) | (int)key;
+            get
+            {
+                if (GamePadButton != GamePadButton.None)
+                {
+                    return 0xF0000000 | (uint)GamePadButton;
+                }
+                else
+                {
+                    return GetCode(Modifiers, Key);
+                }
+            }
         }
 
-
-        public void SetFromCode(int code)
+        public void SetFromCode(uint code)
         {
-            Modifiers = (ModifierKeys)(code >> 16);
-            Key = (Key)(code & 0xFF);
+            if ((code >> 24) == 0xF0)
+            {
+                GamePadButton = (GamePadButton)(code & 0xFFFF);
+                Modifiers = ModifierKeys.None;
+                Key = Key.None;
+            }
+            else
+            {
+                GamePadButton = GamePadButton.None;
+                Modifiers = (ModifierKeys)(code >> 16);
+                Key = (Key)(code & 0xFF);
+            }
         }
 
         public void SetKey(ModifierKeys modifiers, Key key)

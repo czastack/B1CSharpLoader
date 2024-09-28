@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "hid_dll.hpp"
 #include "version_dll.hpp"
+#include "plugin.hpp"
 
 enum class DllType {
     Unknown,
@@ -72,6 +73,7 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         freopen_s(&fDummy, "CONOUT$", "w", stdout);
         freopen_s(&fDummy, "CONOUT$", "w", stderr);
     }
+    loadPluginDlls();
     std::cout << "Wait for CSharpLoader init." << std::endl;
     Sleep(initDelay * 1000); // 30s
 
@@ -175,6 +177,7 @@ void deinit_dll() {
     } else if (dllType == DllType::Hid) {
         deinit_hid_dll();
     }
+    // unloadPluginDlls();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,

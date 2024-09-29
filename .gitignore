@@ -85,3 +85,6 @@ ModelManifest.xml
 /BaldursGate3/BaldursGate3.json
 /GodEater2_RageBurst/GodEater2_RageBurst.json
 /Palworld/Palworld*.json
+
+# JetBrains Rider
+.idea

@@ -1,55 +1,46 @@
-﻿using System;
-using b1;
-using BtlShare;
-using CSharpModBase;
-using CSharpModBase.Input;
+﻿using CSharpModBase.Input;
+
 // using HarmonyLib;
 
-namespace CSharpExample
+namespace CSharpExample;
+
+public sealed class MyMod : ICSharpMod
 {
-    public class MyMod : ICSharpMod
+    // private readonly Harmony harmony;
+
+    public string Name => ModName;
+    public string Version => ModVersion;
+
+    public void Init()
     {
-        public string Name => "ModExample";
-        public string Version => "0.0.1";
-        // private readonly Harmony harmony;
+        Console.WriteLine($"{Name} Init");
+        Utils.RegisterKeyBind(Key.ENTER, () => Console.WriteLine("Enter pressed"));
+        Utils.RegisterKeyBind(ModifierKeys.Control, Key.ENTER, FindPlayer);
 
-        public MyMod()
+        // hook
+        // harmony.PatchAll();
+    }
+
+    public void DeInit()
+    {
+        Console.WriteLine($"{Name} DeInit");
+        // harmony.UnpatchAll();
+    }
+
+    private static void FindPlayer()
+    {
+        Console.WriteLine("Ctrl+Enter pressed");
+        var player = MyUtils.GetControlledPawn();
+        if (player == null)
         {
-            // harmony = new Harmony(Name);
-            // Harmony.DEBUG = true;
+            Console.WriteLine("Player not found");
         }
-
-        public void Init()
+        else
         {
-            Console.WriteLine($"{Name} Init");
-            Utils.RegisterKeyBind(Key.ENTER, () => Console.WriteLine("Enter pressed"));
-            Utils.RegisterKeyBind(ModifierKeys.Control, Key.ENTER, FindPlayer);
-
-            // hook
-            // harmony.PatchAll();
-        }
-
-        public void DeInit()
-        {
-            Console.WriteLine($"{Name} DeInit");
-            // harmony.UnpatchAll();
-        }
-
-        private void FindPlayer()
-        {
-            Console.WriteLine("Ctrl+Enter pressed");
-            var player = MyUtils.GetControlledPawn();
-            if (player == null)
-            {
-                Console.WriteLine("Player not found");
-            }
-            else
-            {
-                Console.WriteLine($"Player found: {player}");
-                float hp = BGUFunctionLibraryCS.GetAttrValue(player, EBGUAttrFloat.Hp);
-                float hpMax = BGUFunctionLibraryCS.GetAttrValue(player, EBGUAttrFloat.HpMax);
-                Console.WriteLine($"HP: {hp}/{hpMax}");
-            }
+            Console.WriteLine($"Player found: {player}");
+            var hp = BGUFunctionLibraryCS.GetAttrValue(player, EBGUAttrFloat.Hp);
+            var hpMax = BGUFunctionLibraryCS.GetAttrValue(player, EBGUAttrFloat.HpMax);
+            Console.WriteLine($"HP: {hp}/{hpMax}");
         }
     }
 }

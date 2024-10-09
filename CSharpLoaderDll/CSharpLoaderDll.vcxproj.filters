@@ -33,6 +33,12 @@
     <ClInclude Include="plugin.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="safetyhook.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Zydis.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -51,6 +57,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="plugin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="safetyhook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Zydis.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

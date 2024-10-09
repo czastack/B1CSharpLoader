@@ -5,6 +5,7 @@
 #include "hid_dll.hpp"
 #include "version_dll.hpp"
 #include "plugin.hpp"
+#include "safetyhook.hpp"
 
 enum class DllType {
     Unknown,
@@ -58,6 +59,44 @@ struct MonoError {
 };
 typedef int (*ves_icall_System_AppDomain_ExecuteAssembly_t)(_MonoAppDomain** ad, _MonoReflectionAssembly** refass, void** args, MonoError* error);
 
+
+enum {
+    /* protection */
+    MONO_MMAP_NONE = 0,
+    MONO_MMAP_READ = 1 << 0,
+    MONO_MMAP_WRITE = 1 << 1,
+    MONO_MMAP_EXEC = 1 << 2,
+    /* make the OS discard the dirty data and fill with 0 */
+    MONO_MMAP_DISCARD = 1 << 3,
+    /* other flags (add commit, sync) */
+    MONO_MMAP_PRIVATE = 1 << 4,
+    MONO_MMAP_SHARED = 1 << 5,
+    MONO_MMAP_ANON = 1 << 6,
+    MONO_MMAP_FIXED = 1 << 7,
+    MONO_MMAP_32BIT = 1 << 8,
+    MONO_MMAP_JIT = 1 << 9
+};
+
+SafetyHookInline g_mono_valloc_hook{};
+
+void* hook_mono_valloc(void* addr, size_t length, int flags, int type)
+{
+    void *ptr = g_mono_valloc_hook.call<void*>(addr, length, flags, type);
+    if (ptr != nullptr && flags & MONO_MMAP_EXEC)
+    {
+        MEMORY_BASIC_INFORMATION info;
+        if (VirtualQuery(ptr, &info, sizeof(info)) == sizeof(info))
+        {
+            if (info.Protect != PAGE_EXECUTE_READWRITE)
+            {
+                DWORD old_protect;
+                VirtualProtect(info.BaseAddress, info.RegionSize, PAGE_EXECUTE_READWRITE, &old_protect);
+            }
+        }
+    }
+    return ptr;
+}
+
 DWORD WINAPI MainThread(LPVOID dwModule)
 {
     if (dllType == DllType::Version)
@@ -79,14 +118,13 @@ DWORD WINAPI MainThread(LPVOID dwModule)
     std::cout << "CSharpLoader wait for init." << std::endl;
     // enable jit
     if (enableJit) {
-        uint64_t memory_fuction_ptr = signature("83 3D ? ? ? ? 00 0F 84 ? ? ? ? C7 84 24 ? ? 00 00 01 00 00 00").GetPointer();
-        if (memory_fuction_ptr == 0) {
-            std::cout << "memory function signature found." << std::endl;
+        uint64_t mono_valloc_ptr = signature("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B 05 ? ? ? ? 41 8B E9 41 8B D8").GetPointer();
+        if (mono_valloc_ptr == 0) {
+            std::cout << "mono_valloc signature found." << std::endl;
         } else {
             DWORD old_protect;
-            if (VirtualProtect((void*)(memory_fuction_ptr + 7), 2, PAGE_EXECUTE_READWRITE, &old_protect)) {
-                *(uint16_t*)(memory_fuction_ptr + 7) = 0xE990;  // nop; jmp
-                VirtualProtect((void*)(memory_fuction_ptr + 7), 2, old_protect, &old_protect);
+            g_mono_valloc_hook = safetyhook::create_inline(mono_valloc_ptr, reinterpret_cast<void*>(hook_mono_valloc));
+            if (g_mono_valloc_hook) {
                 uint64_t mono_mode_ptr = signature("48 8D 0D ? ? ? ? E8 ? ? ? ? 89 44 24 ? 83 7C 24 ? 00").GetPointer();
                 if (mono_mode_ptr == 0) {
                     std::cout << "mono_mode signature found." << std::endl;

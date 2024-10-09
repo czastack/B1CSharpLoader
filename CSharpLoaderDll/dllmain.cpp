@@ -62,10 +62,12 @@ DWORD WINAPI MainThread(LPVOID dwModule)
 {
     if (dllType == DllType::Version)
     {
-        Sleep(2000);
+        Sleep(3000);
     }
-    UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, "./CSharpLoader/b1cs.ini");
-    UINT initDelay = GetPrivateProfileIntA("Settings", "InitDelay", 30, "./CSharpLoader/b1cs.ini");
+    const char* configFile = "./CSharpLoader/b1cs.ini";
+    UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, configFile);
+    UINT initDelay = GetPrivateProfileIntA("Settings", "InitDelay", 30, configFile);
+    BOOL enableJit = GetPrivateProfileIntA("Settings", "EnableJit", 1, configFile);
     if (enableConsole == 1) {
         AllocConsole();
         FILE* fDummy;
@@ -75,6 +77,30 @@ DWORD WINAPI MainThread(LPVOID dwModule)
     }
     loadPluginDlls();
     std::cout << "Wait for CSharpLoader init." << std::endl;
+    // enable jit
+    if (enableJit) {
+        uint64_t memory_fuction_ptr = signature("83 3D ? ? ? ? 00 0F 84 ? ? ? ? C7 84 24 ? ? 00 00 01 00 00 00").GetPointer();
+        if (memory_fuction_ptr == 0) {
+            std::cout << "memory function signature found." << std::endl;
+        } else {
+            DWORD old_protect;
+            if (VirtualProtect((void*)(memory_fuction_ptr + 7), 2, PAGE_EXECUTE_READWRITE, &old_protect)) {
+                *(uint16_t*)(memory_fuction_ptr + 7) = 0xE990;  // nop; jmp
+                VirtualProtect((void*)(memory_fuction_ptr + 7), 2, old_protect, &old_protect);
+                uint64_t mono_mode_ptr = signature("48 8D 0D ? ? ? ? E8 ? ? ? ? 89 44 24 ? 83 7C 24 ? 00").GetPointer();
+                if (mono_mode_ptr == 0) {
+                    std::cout << "mono_mode signature found." << std::endl;
+                } else {
+                    if (VirtualProtect((void*)(mono_mode_ptr + 7), 5, PAGE_EXECUTE_READWRITE, &old_protect)) {
+                        *(uint8_t*)(mono_mode_ptr + 7) = 0xB8;
+                        *(uint32_t*)(mono_mode_ptr + 8) = 1;
+                        VirtualProtect((void*)(mono_mode_ptr + 7), 5, old_protect, &old_protect);
+                    }
+                }
+            }
+        }
+    }
+
     Sleep(initDelay * 1000); // 30s
 
     signature domain_s("F0 FF 88 B0 00 00 00 48 8B 05 ? ? ? ? 48 3B D8 49 0F 44 C4");

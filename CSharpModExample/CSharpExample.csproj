@@ -17,7 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSharpModBase\CSharpModBase.csproj">
-      <Private>False</Private>
+      <!-- <Private>False</Private> -->
+      <!-- <ExcludeAssets>runtime</ExcludeAssets> -->
     </ProjectReference>
   </ItemGroup>
 

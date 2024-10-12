@@ -66,7 +66,6 @@ DWORD WINAPI MainThread(LPVOID dwModule)
     }
     const char* configFile = "./CSharpLoader/b1cs.ini";
     UINT enableConsole = GetPrivateProfileIntA("Settings", "Console", 0, configFile);
-    UINT initDelay = GetPrivateProfileIntA("Settings", "InitDelay", 30, configFile);
     BOOL enableJit = GetPrivateProfileIntA("Settings", "EnableJit", 1, configFile);
     if (enableConsole == 1) {
         AllocConsole();
@@ -102,8 +101,6 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         }
     }
 
-    Sleep(initDelay * 1000); // 30s
-
     signature domain_s("F0 FF 88 B0 00 00 00 48 8B 05 ? ? ? ? 48 3B D8 49 0F 44 C4");
     if (domain_s.GetPointer() == 0) {
         std::cout << "domainPtr pattern not found." << std::endl;
@@ -133,12 +130,12 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         return EXIT_FAILURE;
     }
     void* domain = nullptr;
-    for (size_t i = 0; i < 12; i++) {
+    for (size_t i = 0; i < 180; i++) {
         domain = *domainPtr;
         if (domain != nullptr) {
             break;
         }
-        Sleep(10000); // 10s
+        Sleep(1000); // 1s
     }
     if (domain == nullptr) {
         std::cout << "domain is null." << std::endl;

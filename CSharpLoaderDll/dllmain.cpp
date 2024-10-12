@@ -76,7 +76,8 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         freopen_s(&fDummy, "CONOUT$", "w", stderr);
     }
     loadPluginDlls();
-    std::cout << "Wait for CSharpLoader init." << std::endl;
+    std::cout << "CSharpLoader enableJit: " << enableJit << std::endl;
+    std::cout << "CSharpLoader wait for init." << std::endl;
     // enable jit
     if (enableJit) {
         uint64_t memory_fuction_ptr = signature("83 3D ? ? ? ? 00 0F 84 ? ? ? ? C7 84 24 ? ? 00 00 01 00 00 00").GetPointer();
@@ -153,7 +154,12 @@ DWORD WINAPI MainThread(LPVOID dwModule)
     MonoAssemblyOpenRequest open_request{};
     MonoImageOpenStatus status = MonoImageOpenStatus::MONO_IMAGE_OK;
 
-    void* assembly = mono_assembly_request_open("CSharpLoader\\CSharpManager.bin", &open_request, &status);
+    wchar_t fullFilename[MAX_PATH];
+    GetFullPathName(L"CSharpLoader\\CSharpManager.bin", MAX_PATH, fullFilename, nullptr);
+    char fullFilenameA[MAX_PATH];
+    // convert to utf-8 to support Chinese path
+    WideCharToMultiByte(CP_UTF8, 0, fullFilename, MAX_PATH, fullFilenameA, MAX_PATH, NULL, NULL);
+    void* assembly = mono_assembly_request_open(fullFilenameA, &open_request, &status);
     if (assembly == nullptr) {
         std::cout << "mono_assembly_request_open failed." << std::endl;
         return EXIT_FAILURE;

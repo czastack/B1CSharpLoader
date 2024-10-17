@@ -141,6 +141,7 @@ DWORD WINAPI MainThread(LPVOID dwModule)
         std::cout << "domain is null." << std::endl;
         return EXIT_FAILURE;
     }
+    Sleep(2000); // 2s
 
     void* mono_thread = mono_thread_internal_attach(domain);
     if (mono_thread == nullptr) {

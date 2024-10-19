@@ -14,6 +14,7 @@ namespace CSharpManager
         private bool wantKeepDemoWindow = false;
         private bool isDrawingUI = true;
         private bool isDrawingModsUI = true;
+        private bool showMouse = true;
         public bool IsDrawingUI { get => isDrawingUI; }
         public bool IsDrawingModsUI { get => isDrawingUI && isDrawingModsUI; }
 
@@ -58,6 +59,8 @@ namespace CSharpManager
                 {
                     ImGui.Begin("CSharpLoader", ref isDrawingUI);
                     ImGui.Text("Press Insert to toggle window");
+                    ImGui.Checkbox("Show Mouse", ref showMouse);
+                    ImGui.SameLine();
                     ImGui.Checkbox("Demo Window", ref wantKeepDemoWindow);
                     // float framerate = ImGui.GetIO().Framerate;
                     // ImGui.Text($"Application average {1000.0f / framerate:0.##} ms/frame ({framerate:0.#} FPS)");
@@ -65,7 +68,7 @@ namespace CSharpManager
                     {
                         ImGui.ShowDemoWindow(ref wantKeepDemoWindow);
                     }
-                    ImGui.SetNextItemOpen(true);
+                    ImGui.SetNextItemOpen(true, ImGuiCond.Once);
                     isDrawingModsUI = ImGui.TreeNode("Mods UI");
                 }
                 var mods = CSharpModManager.Instance.LoadedMods;
@@ -84,6 +87,8 @@ namespace CSharpManager
                     if (isDrawingModsUI) ImGui.TreePop();
                     ImGui.End();
                 }
+                var io = ImGui.GetIO();
+                io.MouseDrawCursor = isDrawingUI && showMouse && !io.WantCaptureMouse;
             }
         }
 

@@ -1,13 +1,11 @@
-﻿
-namespace CSharpManager
+﻿namespace CSharpManager;
+
+internal class Program
 {
-    internal class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            CSharpModManager manager = new();
-            manager.LoadMods();
-            manager.StartLoop();
-        }
+        CSharpModManager manager = new();
+        manager.LoadMods();
+        manager.StartLoop();
     }
 }

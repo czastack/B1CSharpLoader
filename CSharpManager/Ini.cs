@@ -1,96 +1,92 @@
-// https://gist.github.com/Larry57/5725301
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
+
+namespace CSharpManager;
 
 public class Ini
 {
-    Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>(StringComparer.InvariantCultureIgnoreCase);
-    string file;
+    private readonly string _file;
+    private readonly Dictionary<string, Dictionary<string, string>> _ini = new(StringComparer.InvariantCultureIgnoreCase);
 
     /// <summary>
-    /// Initialize an INI file
-    /// Load it if it exists
+    ///     Initialize an INI file
+    ///     Load it if it exists
     /// </summary>
     /// <param name="file">Full path where the INI file has to be read from or written to</param>
     public Ini(string file)
     {
-        this.file = file;
+        this._file = file;
 
         if (!File.Exists(file))
+        {
             return;
+        }
 
         Load();
     }
 
     /// <summary>
-    /// Load the INI file content
+    ///     Load the INI file content
     /// </summary>
     public void Load()
     {
-        var txt = File.ReadAllText(file);
+        var txt = File.ReadAllText(_file);
 
-        Dictionary<string, string> currentSection = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, string> currentSection = new(StringComparer.InvariantCultureIgnoreCase);
 
-        ini[""] = currentSection;
+        _ini[""] = currentSection;
 
         foreach (var l in txt.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)
-                          .Select((t, i) => new
-                          {
-                              idx = i,
-                              text = t.Trim()
-                          }))
-        // .Where(t => !string.IsNullOrWhiteSpace(t) && !t.StartsWith(";")))
+                     .Select((t, i) => new
+                     {
+                         idx = i,
+                         text = t.Trim()
+                     }))
+            // .Where(t => !string.IsNullOrWhiteSpace(t) && !t.StartsWith(";")))
         {
             var line = l.text;
 
             if (line.StartsWith(";") || string.IsNullOrWhiteSpace(line))
             {
-                currentSection.Add(";" + l.idx.ToString(), line);
+                currentSection.Add(";" + l.idx, line);
                 continue;
             }
 
             if (line.StartsWith("[") && line.EndsWith("]"))
             {
                 currentSection = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-                ini[line.Substring(1, line.Length - 2)] = currentSection;
+                _ini[line.Substring(1, line.Length - 2)] = currentSection;
                 continue;
             }
 
-            var idx = line.IndexOf("=");
+            var idx = line.IndexOf("=", StringComparison.Ordinal);
             if (idx == -1)
+            {
                 currentSection[line] = "";
+            }
             else
+            {
                 currentSection[line.Substring(0, idx)] = line.Substring(idx + 1);
+            }
         }
     }
 
     /// <summary>
-    /// Get a parameter value at the root level
+    ///     Get a parameter value at the root level
     /// </summary>
     /// <param name="key">parameter key</param>
     /// <returns></returns>
-    public string GetValue(string key)
-    {
-        return GetValue(key, "", "");
-    }
+    public string GetValue(string key) => GetValue(key, "", "");
 
     /// <summary>
-    /// Get a parameter value in the section
+    ///     Get a parameter value in the section
     /// </summary>
     /// <param name="key">parameter key</param>
     /// <param name="section">section</param>
     /// <returns></returns>
-    public string GetValue(string key, string section)
-    {
-        return GetValue(key, section, "");
-    }
+    public string GetValue(string key, string section) => GetValue(key, section, "");
 
     /// <summary>
-    /// Returns a parameter value in the section, with a default value if not found
+    ///     Returns a parameter value in the section, with a default value if not found
     /// </summary>
     /// <param name="key">parameter key</param>
     /// <param name="section">section</param>
@@ -98,22 +94,26 @@ public class Ini
     /// <returns></returns>
     public string GetValue(string key, string section, string @default)
     {
-        if (!ini.ContainsKey(section))
+        if (!_ini.TryGetValue(section, out var value))
+        {
             return @default;
+        }
 
-        if (!ini[section].ContainsKey(key))
+        if (!value.ContainsKey(key))
+        {
             return @default;
+        }
 
-        return ini[section][key];
+        return _ini[section][key];
     }
 
     /// <summary>
-    /// Save the INI file
+    ///     Save the INI file
     /// </summary>
     public void Save()
     {
         var sb = new StringBuilder();
-        foreach (var section in ini)
+        foreach (var section in _ini)
         {
             if (section.Key != "")
             {
@@ -135,27 +135,31 @@ public class Ini
                 }
             }
 
-            if (!endWithCRLF(sb))
+            if (!EndWithCrlf(sb))
+            {
                 sb.AppendLine();
+            }
         }
 
-        File.WriteAllText(file, sb.ToString());
+        File.WriteAllText(_file, sb.ToString());
     }
 
-    bool endWithCRLF(StringBuilder sb)
+    private static bool EndWithCrlf(StringBuilder sb)
     {
         if (sb.Length < 4)
+        {
             return sb[sb.Length - 2] == '\r' &&
                    sb[sb.Length - 1] == '\n';
-        else
-            return sb[sb.Length - 4] == '\r' &&
-                   sb[sb.Length - 3] == '\n' &&
-                   sb[sb.Length - 2] == '\r' &&
-                   sb[sb.Length - 1] == '\n';
+        }
+
+        return sb[sb.Length - 4] == '\r' &&
+               sb[sb.Length - 3] == '\n' &&
+               sb[sb.Length - 2] == '\r' &&
+               sb[sb.Length - 1] == '\n';
     }
 
     /// <summary>
-    /// Write a parameter value at the root level
+    ///     Write a parameter value at the root level
     /// </summary>
     /// <param name="key">parameter key</param>
     /// <param name="value">parameter value</param>
@@ -165,7 +169,7 @@ public class Ini
     }
 
     /// <summary>
-    /// Write a parameter value in a section
+    ///     Write a parameter value in a section
     /// </summary>
     /// <param name="key">parameter key</param>
     /// <param name="section">section</param>
@@ -173,36 +177,40 @@ public class Ini
     public void WriteValue(string key, string section, string value)
     {
         Dictionary<string, string> currentSection;
-        if (!ini.ContainsKey(section))
+        if (!_ini.ContainsKey(section))
         {
             currentSection = new Dictionary<string, string>();
-            ini.Add(section, currentSection);
+            _ini.Add(section, currentSection);
         }
         else
-            currentSection = ini[section];
+        {
+            currentSection = _ini[section];
+        }
 
         currentSection[key] = value;
     }
 
     /// <summary>
-    /// Get all the keys names in a section
+    ///     Get all the keys names in a section
     /// </summary>
     /// <param name="section">section</param>
     /// <returns></returns>
     public string[] GetKeys(string section)
     {
-        if (!ini.ContainsKey(section))
-            return new string[0];
+        if (!_ini.TryGetValue(section, out var value))
+        {
+            return [];
+        }
 
-        return ini[section].Keys.ToArray();
+        return value.Keys.ToArray();
     }
 
     /// <summary>
-    /// Get all the section names of the INI file
+    ///     Get all the section names of the INI file
     /// </summary>
     /// <returns></returns>
     public string[] GetSections()
     {
-        return ini.Keys.Where(t => t != "").ToArray();
+        return _ini.Keys.Where(t => t != "").ToArray();
     }
 }

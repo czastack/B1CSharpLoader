@@ -5,9 +5,8 @@ namespace CSharpManager
     {
         public static void Main(string[] args)
         {
-            CSharpModManager manager = new();
-            manager.LoadMods();
-            manager.StartLoop();
+            CSharpModManager.Instance.LoadMods();
+            CSharpModManager.Instance.StartLoop();
         }
     }
 }

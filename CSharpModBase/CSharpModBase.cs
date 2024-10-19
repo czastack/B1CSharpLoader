@@ -30,4 +30,10 @@
         /// </summary>
         void DeInit();
     }
+
+
+    public interface IGuiMod
+    {
+        void Render();
+    }
 }

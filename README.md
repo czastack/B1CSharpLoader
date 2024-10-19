@@ -58,9 +58,10 @@ version.dll是常用的插件名字，如果你使用了其他有名称冲突的
 
 ## mod编写教程
 
-建议安装.net 8 sdk，方便使用最新的语法。
-开发工具可以使用vscode, visual studio 或者 rider。
-示例工程可以参考CSharpModExample
+建议安装.net 8 sdk，方便使用最新的语法。  
+开发工具可以使用vscode, visual studio 或者 rider。  
+示例工程可以参考CSharpModExample  
+克隆代码后需要初始化子模块 `git submodule update --init --recursive`
 
 ### mod入口
 
@@ -96,6 +97,45 @@ Utils.RegisterKeyBind(ModifierKeys.Alt, Key.X, () =>
 });
 ```
 
+### ImGui
+
+为了兼容之前的Mod，所以没直接往ICSharpMod新加接口，而是新增了IGuiMod接口。
+Mod类中实现IGuiMod接口，在Render函数中调用ImGui的接口绘制。
+
+```C#
+public void Render()
+{
+    // CSharpLoader.IsDrawingUI: 是否绘制CSharpLoader窗口
+    // CSharpLoader.IsDrawingModsUI: 是否绘制CSharpLoader窗口中的Mods UI
+    if (CSharpLoader.IsDrawingModsUI)
+    {
+        // 绘制到CSharpLoader窗口中的Mods UI的子项
+        if (ImGui.TreeNode("MyMod"))
+        {
+            ImGui.Checkbox("Show Window", ref showWindow);
+            ImGui.TreePop();
+        }
+    }
+    if (showWindow && CSharpLoader.IsDrawingUI)
+    {
+        // 独立的窗口
+        ImGui.Begin("MyMod Window", ref showWindow);
+        ImGui.Text("Hello from MyMod!");
+        if (ImGui.Button("Close Me"))
+            showWindow = false;
+        ImGui.End();
+    }
+    // Draw background
+    if (drawBackground)
+    {
+        var io = ImGui.GetIO();
+        var pos = new Vector2(io.DisplaySize.X / 2, 100);
+        // Use APlayerController.ProjectWorldLocationToScreen to get screen pos
+        // color hex is RGBA (0x A B G R)
+        ImGui.GetBackgroundDrawList().AddText(null, 20 * CSharpLoader.DpiScale, pos, 0xFFFFFFFF, "Welcome to MyMod");
+    }
+}
+```
 
 
 ### C# hook

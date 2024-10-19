@@ -57,9 +57,10 @@ In version 0.0.7 of the C# loader, to enable C# patch/hook features, the game's 
 
 ## Mod develop tutorial
 
-Suggest install [.net 8 sdk](https://dotnet.microsoft.com/) to develop with latest syntax.
-You can use vscode, visual studio or rider to write code.
-See CSharpModExample.
+Suggest install [.net 8 sdk](https://dotnet.microsoft.com/) to develop with latest syntax.  
+You can use vscode, visual studio or rider to write code.  
+See CSharpModExample.  
+After clone code, run `git submodule update --init --recursive`
 
 ### Mod entrance
 
@@ -96,6 +97,47 @@ Utils.RegisterKeyBind(ModifierKeys.Alt, Key.X, () =>
 {
 
 });
+```
+
+
+### ImGui
+
+To maintain compatibility with previous mods, we did not directly add interfaces to ICSharpMod. Instead, we introduced the IGuiMod interface.
+Implement the IGuiMod interface in the Mod class and call ImGui's interface to draw within the Render function.
+
+```C#
+public void Render()
+{
+    // CSharpLoader.IsDrawingUI: Is the CSharpLoader window to be drawn
+    // CSharpLoader.IsDrawingModsUI: Is the CSharpLoader window Mods UI to be drawn
+    if (CSharpLoader.IsDrawingModsUI)
+    {
+        // Render as subitems of the Mods UI in CSharpLoader window
+        if (ImGui.TreeNode("MyMod"))
+        {
+            ImGui.Checkbox("Show Window", ref showWindow);
+            ImGui.TreePop();
+        }
+    }
+    if (showWindow && CSharpLoader.IsDrawingUI)
+    {
+        // Render as Separate window
+        ImGui.Begin("MyMod Window", ref showWindow);
+        ImGui.Text("Hello from MyMod!");
+        if (ImGui.Button("Close Me"))
+            showWindow = false;
+        ImGui.End();
+    }
+    // Draw background
+    if (drawBackground)
+    {
+        var io = ImGui.GetIO();
+        var pos = new Vector2(io.DisplaySize.X / 2, 100);
+        // Use APlayerController.ProjectWorldLocationToScreen to get screen pos
+        // color hex is RGBA (0x A B G R)
+        ImGui.GetBackgroundDrawList().AddText(null, 20 * CSharpLoader.DpiScale, pos, 0xFFFFFFFF, "Welcome to CSharpModExample");
+    }
+}
 ```
 
 

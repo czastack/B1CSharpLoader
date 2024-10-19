@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using CSharpModBase;
@@ -15,23 +13,26 @@ namespace CSharpManager
         public List<HotKeyItem> HotKeyItems { get; } = new();
         public bool EnableGamePad { get; set; } = true;
         public static GamePadButton CurrentGamePadButton { get; set; }
+        public bool IsProgramFocused { get; private set; }
         // public static GamePadButtonEventHandler? GamePadButtonDown { get; set; }
 
-        private IntPtr HWnd;
+        public IntPtr HWnd { get; private set; }
 
-        public InputManager()
+        private InputManager()
         {
         }
 
+        public static InputManager Instance { get; } = new();
+
         private void FindMainWindow()
         {
-            uint currentProcessId = GetCurrentProcessId();
+            uint currentProcessId = User32.GetCurrentProcessId();
             StringBuilder stringBuilder = new(64);
-            EnumWindows(new EnumWindowsProc((hWnd, lParam) =>
+            User32.EnumWindows(new User32.EnumWindowsProc((hWnd, lParam) =>
             {
-                GetWindowThreadProcessId(hWnd, out uint processId);
-                if (processId == GetCurrentProcessId() &&
-                    GetClassName(hWnd, stringBuilder, stringBuilder.Capacity) > 0 &&
+                User32.GetWindowThreadProcessId(hWnd, out uint processId);
+                if (processId == User32.GetCurrentProcessId() &&
+                    User32.GetClassName(hWnd, stringBuilder, stringBuilder.Capacity) > 0 &&
                     stringBuilder.ToString() == "UnrealWindow")
                 {
                     HWnd = hWnd;
@@ -73,7 +74,8 @@ namespace CSharpManager
 
         public void Update()
         {
-            if (!IsProgramFocused()) return;
+            IsProgramFocused = CheckProgramFocused();
+            if (!IsProgramFocused) return;
             if (EnableGamePad)
             {
                 GamePadUtils.GetGamePadButtons(out var buttons);
@@ -98,35 +100,17 @@ namespace CSharpManager
             }
         }
 
-        public bool IsProgramFocused()
+        public bool CheckProgramFocused()
         {
             if (HWnd == IntPtr.Zero)
             {
                 Thread.Sleep(1000);
                 FindMainWindow();
             }
-            var hwnd = GetForegroundWindow();
+            var hwnd = User32.GetForegroundWindow();
             if (hwnd == IntPtr.Zero) return false;
             return hwnd == HWnd;
         }
-
-        [DllImport("user32.dll")]
-        private extern static IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-        [DllImport("kernel32.dll")]
-        static extern uint GetCurrentProcessId();
-
-        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-        // 导入Win32 API函数
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         public HotKeyItem RegisterBuiltinKeyBind(Key key, Action action)
         {

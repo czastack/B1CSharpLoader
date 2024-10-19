@@ -10,14 +10,14 @@ using Mono.Cecil;
 
 namespace CSharpManager
 {
-    public class CSharpModManager
+    public class CSharpModManager : ICSharpModManager
     {
         static string? LoadingModName { get; set; }
 
         public List<ICSharpMod> LoadedMods { get; } = new();
-        public InputManager InputManager { get; } = new();
         public bool Develop { get; set; }
         private Thread? loopThread;
+        private ImGuiOverlay Overlay { get; }
 
         static CSharpModManager()
         {
@@ -27,6 +27,8 @@ namespace CSharpManager
 
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         }
+
+        public static CSharpModManager Instance { get; } = new CSharpModManager();
 
         private static Assembly? TryLoadDll(string path)
         {
@@ -70,66 +72,92 @@ namespace CSharpManager
             Log.Error(e.Exception);
         }
 
-        public CSharpModManager()
+        private CSharpModManager()
         {
-            Utils.InitInputManager(InputManager);
+            CSharpLoaderInternal.InitModManager(this);
+            CSharpLoaderInternal.InitInputManager(InputManager.Instance);
             // load config from ini
             Ini iniFile = new(Path.Combine(Common.LoaderDir, "b1cs.ini"));
             Develop = iniFile.GetValue("Develop", "Settings", "1").Trim() == "1";
             Log.Debug($"Develop: {Develop}");
+
+            Overlay = new();
         }
+
+        /// <summary>
+        /// Version of CSharpLoader
+        /// </summary>
+        public Version Version => GetType().Assembly.GetName().Version;
+
+        /// <summary>
+        /// ImGuiOverlay is drawing UI
+        /// </summary>
+        public bool IsDrawingUI => Overlay.IsDrawingUI;
+
+        /// <summary>
+        /// ImGuiOverlay is drawing mods UI
+        /// </summary>
+        public bool IsDrawingModsUI => Overlay.IsDrawingModsUI;
+
+        /// <summary>
+        /// ImGuiOverlay DpiScale
+        /// </summary>
+        public float DpiScale => Overlay.DpiScale;
 
         public void LoadMods()
         {
-            LoadedMods.Clear();
-            if (!Directory.Exists(Common.ModDir))
+            lock (LoadedMods)
             {
-                Log.Error($"Mod dir {Common.ModDir} not exists");
-                return;
-            }
-            string[] dirs = Directory.GetDirectories(Common.ModDir);
-            Type ICSharpModType = typeof(ICSharpMod);
-            foreach (var dir in dirs)
-            {
-                LoadingModName = Path.GetFileName(dir);
-                string dllPath = Path.Combine(dir, $"{LoadingModName}.dll");
-                if (!File.Exists(dllPath)) continue;
-                try
+                LoadedMods.Clear();
+                if (!Directory.Exists(Common.ModDir))
                 {
-                    Log.Debug($"======== Loading {dllPath} ========");
-                    Assembly assembly;
-                    if (Develop)
+                    Log.Error($"Mod dir {Common.ModDir} not exists");
+                    return;
+                }
+                string[] dirs = Directory.GetDirectories(Common.ModDir);
+                Type ICSharpModType = typeof(ICSharpMod);
+                foreach (var dir in dirs)
+                {
+                    LoadingModName = Path.GetFileName(dir);
+                    string dllPath = Path.Combine(dir, $"{LoadingModName}.dll");
+                    if (!File.Exists(dllPath)) continue;
+                    try
                     {
-                        using var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath);
-                        assemblyDef.Name.Name += DateTime.Now.ToString("_yyyyMMdd_HHmmssffff");
-                        using MemoryStream stream = new();
-                        assemblyDef.Write(stream);
-                        assembly = Assembly.Load(stream.GetBuffer());
-                    }
-                    else
-                    {
-                        assembly = Assembly.LoadFrom(dllPath);
-                    }
-                    foreach (Type type in assembly.GetTypes())
-                    {
-                        if (ICSharpModType.IsAssignableFrom(type))
+                        Log.Debug($"======== Loading {dllPath} ========");
+                        Assembly assembly;
+                        if (Develop)
                         {
-                            Log.Debug($"Found ICSharpMod: {type}");
-
-                            if (Activator.CreateInstance(type) is ICSharpMod mod)
+                            using var assemblyDef = AssemblyDefinition.ReadAssembly(dllPath);
+                            assemblyDef.Name.Name += DateTime.Now.ToString("_yyyyMMdd_HHmmssffff");
+                            using MemoryStream stream = new();
+                            assemblyDef.Write(stream);
+                            assembly = Assembly.Load(stream.GetBuffer());
+                        }
+                        else
+                        {
+                            assembly = Assembly.LoadFrom(dllPath);
+                        }
+                        foreach (Type type in assembly.GetTypes())
+                        {
+                            if (ICSharpModType.IsAssignableFrom(type))
                             {
-                                mod.Init();
-                                LoadedMods.Add(mod);
-                                Log.Debug($"Loaded mod {mod.Name} {mod.Version}");
+                                Log.Debug($"Found ICSharpMod: {type}");
+
+                                if (Activator.CreateInstance(type) is ICSharpMod mod)
+                                {
+                                    mod.Init();
+                                    LoadedMods.Add(mod);
+                                    Log.Debug($"Loaded mod {mod.Name} {mod.Version}");
+                                }
                             }
                         }
+                        LoadingModName = null;
                     }
-                    LoadingModName = null;
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"Load {dllPath} failed:");
-                    Log.Error(e);
+                    catch (Exception e)
+                    {
+                        Log.Error($"Load {dllPath} failed:");
+                        Log.Error(e);
+                    }
                 }
             }
         }
@@ -137,17 +165,20 @@ namespace CSharpManager
         public void ReloadMods()
         {
             Log.Debug("ReloadMods");
-            InputManager.Clear();
-            foreach (var mod in LoadedMods)
+            lock (LoadedMods)
             {
-                try
+                InputManager.Instance.Clear();
+                foreach (var mod in LoadedMods)
                 {
-                    mod.DeInit();
-                }
-                catch (Exception e)
-                {
-                    Log.Error($"DeInit {mod.Name} failed:");
-                    Log.Error(e);
+                    try
+                    {
+                        mod.DeInit();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"DeInit {mod.Name} failed:");
+                        Log.Error(e);
+                    }
                 }
             }
             LoadMods();
@@ -155,20 +186,21 @@ namespace CSharpManager
 
         public void StartLoop()
         {
-            InputManager.RegisterBuiltinKeyBind(ModifierKeys.Control, Key.F5, ReloadMods);
+            InputManager.Instance.RegisterBuiltinKeyBind(ModifierKeys.Control, Key.F5, ReloadMods);
             loopThread = new Thread(Loop)
             {
                 // IsBackground = true,
             };
             loopThread.Start();
+            _ = Overlay.Start();
         }
 
         private void Loop()
         {
             while (true)
             {
-                InputManager.Update();
-                Thread.Sleep(10);  // 10ms
+                InputManager.Instance.Update();
+                Thread.Sleep(100);  // 100ms
             }
         }
     }

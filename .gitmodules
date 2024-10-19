@@ -1,0 +1,3 @@
+[submodule "ClickableTransparentOverlay"]
+	path = ClickableTransparentOverlay
+	url = https://github.com/czastack/ClickableTransparentOverlay

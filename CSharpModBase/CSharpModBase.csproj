@@ -7,7 +7,35 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <AssemblyVersion>0.1.1.0</AssemblyVersion>
     <PlatformTarget>x64</PlatformTarget>
+
+    <Version>0.1.1.0</Version>
+    <FileVersion>0.1.1.0</FileVersion>
+    <Authors>chenstack</Authors>
+    <Product />
+    <Company />
+    <PackageId>B1CSharpLoader.ModBase</PackageId>
+    <Description>A base library used in C# mod for BlackMythWukong CSharpLoader.</Description>
+    <PackageProjectUrl>https://github.com/czastack/B1CSharpLoader</PackageProjectUrl>
+    <PackageTags>B1CSharpLoader</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.3" />

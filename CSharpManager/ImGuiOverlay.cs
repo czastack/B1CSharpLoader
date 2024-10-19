@@ -39,7 +39,7 @@ namespace CSharpManager
             const string fontPath = "c:\\Windows\\Fonts\\msyh.ttc";
             if (File.Exists(fontPath))
             {
-                io.Fonts.AddFontFromFileTTF(fontPath, 18.0f * DpiScale, null, io.Fonts.GetGlyphRangesChineseSimplifiedCommon());
+                io.Fonts.AddFontFromFileTTF(fontPath, 18.0f * DpiScale, null, io.Fonts.GetGlyphRangesChineseFull());
             }
         }
 

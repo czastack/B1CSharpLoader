@@ -50,6 +50,7 @@ namespace CSharpManager
             {
                 ToggleVisible();
             }
+            var io = ImGui.GetIO();
             IntPtr foregroundWindow = User32.GetForegroundWindow();
             if (foregroundWindow == IntPtr.Zero ||
                 foregroundWindow == Window.Handle ||
@@ -87,8 +88,11 @@ namespace CSharpManager
                     if (isDrawingModsUI) ImGui.TreePop();
                     ImGui.End();
                 }
-                var io = ImGui.GetIO();
                 io.MouseDrawCursor = isDrawingUI && showMouse && !io.WantCaptureMouse;
+            }
+            else
+            {
+                io.MouseDrawCursor = false;
             }
         }
 

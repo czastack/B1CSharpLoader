@@ -51,6 +51,8 @@ version.dll是常用的插件名字，如果你使用了其他有名称冲突的
   - C# mod管理器，加载和管理C# mod
 - CSharpModBase
   - 提供给mod使用的接口
+- CSharpModExample
+  - mod示例
 - GameDll
   - 游戏内的C# dll，写mod代码需要引用这些dll
 

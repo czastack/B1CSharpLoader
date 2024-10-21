@@ -1,9 +1,8 @@
 using System.Reflection;
 using CSharpModBase;
 using CSharpModBase.Input;
-using CSharpModBase.Utils;
 using Mono.Cecil;
-using static CSharpModBase.CommonDirs;
+using static CSharpModBase.Common;
 
 namespace CSharpManager;
 
@@ -27,7 +26,7 @@ public class CSharpModManager
 
     public CSharpModManager()
     {
-        InputUtils.InitInputManager(InputManager);
+        Utils.InitInputManager(InputManager);
         // load config from ini
         Ini iniFile = new(Path.Combine(LoaderDir, "b1cs.ini"));
         Develop = iniFile.GetValue("Develop", "Settings", "1").Trim() == "1";

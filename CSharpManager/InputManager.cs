@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using CSharpModBase;
 using CSharpModBase.Input;
-using CSharpModBase.Utils;
 
 namespace CSharpManager;
 
@@ -76,11 +75,11 @@ public class InputManager : IInputManager
                 item.IsPressed = true;
                 if (item.RunOnGameThread)
                 {
-                    InputUtils.TryRunOnGameThread(item.Action);
+                    Utils.TryRunOnGameThread(item.Action);
                 }
                 else
                 {
-                    InputUtils.TryRun(item.Action);
+                    Utils.TryRun(item.Action);
                 }
             }
             else if (item.IsPressed)

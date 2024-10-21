@@ -14,7 +14,7 @@ public class Ini
     /// <param name="file">Full path where the INI file has to be read from or written to</param>
     public Ini(string file)
     {
-        this._file = file;
+        _file = file;
 
         if (!File.Exists(file))
         {

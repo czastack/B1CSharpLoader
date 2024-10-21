@@ -1,9 +1,9 @@
 using CSharpModBase.Input;
 using UnrealEngine.Runtime;
 
-namespace CSharpModBase.Utils;
+namespace CSharpModBase;
 
-public static class InputUtils
+public static class Utils
 {
     private static IInputManager? _inputManager;
 

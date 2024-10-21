@@ -28,9 +28,9 @@ public enum GamePadButton
     DPadLeftUp = DPadLeft | DPadUp
 }
 
-public sealed class GamePadButtonEventArgs : EventArgs
+public sealed class GamePadButtonEvent : EventArgs
 {
     public GamePadButton Button { get; set; }
 }
 
-public delegate void GamePadButtonEventHandler(GamePadButtonEventArgs e);
+public delegate void GamePadButtonEventHandler(GamePadButtonEvent e);

@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
-using CSharpModBase.Input;
 
-namespace CSharpModBase.Utils;
+namespace CSharpModBase.Input;
 
 public static class KeyUtils
 {

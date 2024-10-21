@@ -1,5 +1,3 @@
-using CSharpModBase.Utils;
-
 namespace CSharpModBase.Input;
 
 public class HotKeyData

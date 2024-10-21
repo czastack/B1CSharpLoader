@@ -1,7 +1,6 @@
-using CSharpModBase.Input;
 using SharpDX.XInput;
 
-namespace CSharpModBase.Utils;
+namespace CSharpModBase.Input;
 
 public static class GamePadUtils
 {

@@ -59,7 +59,7 @@ In version 0.0.7 of the C# loader, to enable C# patch/hook features, the game's 
 
 Suggest install [.net 8 sdk](https://dotnet.microsoft.com/) to develop with latest syntax.
 You can use vscode, visual studio or rider to write code.
-See CSharpModExample.
+For mod template, follow [B1.Mod.Template](https://github.com/BlackMythWukongMods/B1.Mod.Template)'s Readme to install and use it
 
 ### Mod entrance
 

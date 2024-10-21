@@ -79,3 +79,7 @@ ModelManifest.xml
 
 .vs
 .vscode
+
+# JetBrains Rider
+*.sln.iml
+.idea

@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <!-- <ItemGroup>
+    <Reference Include="CSharpModBase">
+      <HintPath>..\CSharpModBase\bin\Debug\net472\CSharpModBase.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup> -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpModBase\CSharpModBase.csproj">
+      <!-- <Private>False</Private> -->
+      <!-- <ExcludeAssets>runtime</ExcludeAssets> -->
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BtlSvr.Main">
+      <HintPath>..\GameDll\BtlSvr.Main.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="b1.Native">
+      <HintPath>..\GameDll\b1.Native.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="b1.NativePlugins">
+      <HintPath>..\GameDll\b1.NativePlugins.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GSE.Core">
+      <HintPath>..\GameDll\GSE.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GSE.ProtobufDB">
+      <HintPath>..\GameDll\GSE.ProtobufDB.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\GameDll\Google.Protobuf.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Protobuf.RunTime">
+      <HintPath>..\GameDll\Protobuf.RunTime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnrealEngine.Runtime">
+      <HintPath>..\GameDll\UnrealEngine.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnrealEngine">
+      <HintPath>..\GameDll\UnrealEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

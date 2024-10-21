@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+<Obfuscator>
+  <Var name="OutPath" value="bin\Debug\net472\Obfuscated" />
+  <Var name="KeepPublicApi" value="false" />
+  <Var name="ReuseNames" value="false" />
+  <Module file="bin\Debug\net472\CSharpExample.dll">
+  </Module>
+</Obfuscator>

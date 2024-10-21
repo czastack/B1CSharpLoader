@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpManager", "CSharpMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpModBase", "CSharpModBase\CSharpModBase.csproj", "{82BC94A3-CB1D-4A7C-9C0A-1860D8C57942}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpExample", "CSharpModExample\CSharpExample.csproj", "{541076F4-03E4-4C7E-B511-E5D548DD6707}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{82BC94A3-CB1D-4A7C-9C0A-1860D8C57942}.Release|x64.Build.0 = Release|Any CPU
 		{82BC94A3-CB1D-4A7C-9C0A-1860D8C57942}.Release|x86.ActiveCfg = Release|Any CPU
 		{82BC94A3-CB1D-4A7C-9C0A-1860D8C57942}.Release|x86.Build.0 = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|x64.Build.0 = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Debug|x86.Build.0 = Debug|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|x64.ActiveCfg = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|x64.Build.0 = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|x86.ActiveCfg = Release|Any CPU
+		{541076F4-03E4-4C7E-B511-E5D548DD6707}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

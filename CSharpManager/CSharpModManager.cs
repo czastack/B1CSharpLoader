@@ -3,6 +3,7 @@ using CSharpModBase;
 using CSharpModBase.Input;
 using CSharpModBase.Utils;
 using Mono.Cecil;
+using static CSharpModBase.CommonDirs;
 
 namespace CSharpManager;
 
@@ -28,7 +29,7 @@ public class CSharpModManager
     {
         InputUtils.InitInputManager(InputManager);
         // load config from ini
-        Ini iniFile = new(Path.Combine(Common.LoaderDir, "b1cs.ini"));
+        Ini iniFile = new(Path.Combine(LoaderDir, "b1cs.ini"));
         Develop = iniFile.GetValue("Develop", "Settings", "1").Trim() == "1";
         Log.Debug($"Develop: {Develop}");
     }
@@ -53,9 +54,9 @@ public class CSharpModManager
             }
 
             var dllName = $"{new AssemblyName(args.Name).Name}.dll";
-            return TryLoadDll(Path.Combine(Common.ModDir, LoadingModName, dllName)) ??
-                   TryLoadDll(Path.Combine(Common.ModDir, "Common", dllName)) ??
-                   TryLoadDll(Path.Combine(Common.LoaderDir, dllName));
+            return TryLoadDll(Path.Combine(ModDir, LoadingModName, dllName)) ??
+                   TryLoadDll(Path.Combine(ModDir, "CommonDirs", dllName)) ??
+                   TryLoadDll(Path.Combine(LoaderDir, dllName));
         }
         catch (Exception e)
         {
@@ -81,13 +82,13 @@ public class CSharpModManager
     public void LoadMods()
     {
         LoadedMods.Clear();
-        if (!Directory.Exists(Common.ModDir))
+        if (!Directory.Exists(ModDir))
         {
-            Log.Error($"Mod dir {Common.ModDir} not exists");
+            Log.Error($"Mod dir {ModDir} not exists");
             return;
         }
 
-        string[] dirs = Directory.GetDirectories(Common.ModDir);
+        string[] dirs = Directory.GetDirectories(ModDir);
         var ICSharpModType = typeof(ICSharpMod);
         foreach (var dir in dirs)
         {

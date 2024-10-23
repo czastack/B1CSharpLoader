@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -63,6 +64,27 @@ namespace CSharpModBase.Input
         public static bool IsKeyDown(Key key)
         {
             return GetKeyState((uint)key) < 0;
+        }
+
+        public static int CountModifiers(ModifierKeys modifiers)
+        {
+            int count = 0;
+            if ((modifiers & ModifierKeys.Control) != 0) count++;
+            if ((modifiers & ModifierKeys.Alt) != 0) count++;
+            if ((modifiers & ModifierKeys.Shift) != 0) count++;
+            return count;
+        }
+        public static int CountGamePadButtons(GamePadButton keys)
+        {
+            int count = 0;
+            foreach (GamePadButton button in Enum.GetValues(typeof(GamePadButton)))
+            {
+                if (button != GamePadButton.None && (keys & button) == button)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         public static ModifierKeys Modifiers

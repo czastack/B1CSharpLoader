@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -44,29 +43,67 @@ namespace CSharpManager
         private void HandleKeys(List<HotKeyItem> items)
         {
             var now = DateTime.Now.Ticks / 10000;
-            var modifiers = KeyUtils.Modifiers;
+            var currentModifiers = KeyUtils.Modifiers;
+
+            var matchedItems = new List<HotKeyItem>();
+
+            // 统计可能按下的按键
             foreach (var item in items)
             {
-                if (item.Modifiers == modifiers && KeyUtils.IsKeyDown(item.Key) ||
-                    CurrentGamePadButton != GamePadButton.None && item.GamePadButton != GamePadButton.None && CurrentGamePadButton.HasFlag(item.GamePadButton))
+                // 情况：组合键单独按下，多个组合键按下，多个组合键+普通键按下
+                bool keyboardMatch = item.Modifiers == currentModifiers && ((item.Key == Key.None && currentModifiers != ModifierKeys.None) || KeyUtils.IsKeyDown(item.Key));
+                // 任意多个手柄按键按下
+                bool gamepadMatch = CurrentGamePadButton != GamePadButton.None && item.GamePadButton != GamePadButton.None && (CurrentGamePadButton & item.GamePadButton) == item.GamePadButton;
+
+                if (keyboardMatch || gamepadMatch)
                 {
-                    if (item.IsPressed && (item.RepeatMs == 0 || item.LastTriggerMs > 0 && now - item.LastTriggerMs < item.RepeatMs))
-                    {
-                        continue;
-                    }
-                    item.IsPressed = true;
-                    if (item.RunOnGameThread)
-                    {
-                        Utils.TryRunOnGameThread(item.Action);
-                    }
-                    else
-                    {
-                        Utils.TryRun(item.Action);
-                    }
+                    matchedItems.Add(item);
                 }
                 else if (item.IsPressed)
                 {
                     item.IsPressed = false;
+                }
+            }
+
+            if (matchedItems.Count > 0)
+            {
+                // 获取最高复杂度
+                int maxComplexity = KeyUtils.CountModifiers(matchedItems[0].Modifiers) +
+                              KeyUtils.CountGamePadButtons(matchedItems[0].GamePadButton);
+
+                foreach (var item in matchedItems)
+                {
+                    // 获取当前复杂度
+                    int currentComplexity = KeyUtils.CountModifiers(item.Modifiers) +
+                                      KeyUtils.CountGamePadButtons(item.GamePadButton);
+
+                    // 比最高复杂度低的，忽略掉
+                    if (currentComplexity < maxComplexity)
+                    {
+                        break;
+                    }
+
+                    bool shouldTrigger = false;
+                    if (!item.IsPressed ||
+                       (item.RepeatMs > 0 && item.LastTriggerMs > 0 &&
+                        now - item.LastTriggerMs >= item.RepeatMs))
+                    {
+                        shouldTrigger = true;
+                        item.IsPressed = true;
+                        item.LastTriggerMs = now;
+                    }
+
+                    if (shouldTrigger)
+                    {
+                        if (item.RunOnGameThread)
+                        {
+                            Utils.TryRunOnGameThread(item.Action);
+                        }
+                        else
+                        {
+                            Utils.TryRun(item.Action);
+                        }
+                    }
                 }
             }
         }
@@ -77,10 +114,6 @@ namespace CSharpManager
             if (EnableGamePad)
             {
                 GamePadUtils.GetGamePadButtons(out var buttons);
-                // if (buttons != GamePadButton.None)
-                // {
-                //     GamePadButtonDown?.Invoke(new GamePadButtonEvent { Button = buttons });
-                // }
                 CurrentGamePadButton = buttons;
             }
             HandleKeys(BuiltinHotKeyItems);
@@ -132,6 +165,7 @@ namespace CSharpManager
         {
             var item = new HotKeyItem(ModifierKeys.None, key, action);
             BuiltinHotKeyItems.Add(item);
+            SortHotKeys(BuiltinHotKeyItems);
             return item;
         }
 
@@ -139,7 +173,18 @@ namespace CSharpManager
         {
             var item = new HotKeyItem(modifiers, key, action);
             BuiltinHotKeyItems.Add(item);
+            SortHotKeys(BuiltinHotKeyItems);
             return item;
+        }
+
+        private void SortHotKeys(List<HotKeyItem> items)
+        {
+            items.Sort((a, b) =>
+            {
+                int aComplexity = KeyUtils.CountModifiers(a.Modifiers) + KeyUtils.CountGamePadButtons(a.GamePadButton);
+                int bComplexity = KeyUtils.CountModifiers(b.Modifiers) + KeyUtils.CountGamePadButtons(b.GamePadButton);
+                return bComplexity.CompareTo(aComplexity);
+            });
         }
 
         public void RegisterKeyBind(HotKeyItem item)
@@ -147,6 +192,7 @@ namespace CSharpManager
             lock (HotKeyItems)
             {
                 HotKeyItems.Add(item);
+                SortHotKeys(HotKeyItems);
             }
         }
 

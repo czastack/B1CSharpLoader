@@ -7,7 +7,7 @@ namespace CSharpModBase.Input
     public enum GamePadButton
     {
         None = GamepadButtonFlags.None,
-        DPadUp = GamepadButtonFlags.DPadDown,
+        DPadUp = GamepadButtonFlags.DPadUp,
         DPadDown = GamepadButtonFlags.DPadDown,
         DPadLeft = GamepadButtonFlags.DPadLeft,
         DPadRight = GamepadButtonFlags.DPadRight,

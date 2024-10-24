@@ -60,7 +60,7 @@ version.dll是常用的插件名字，如果你使用了其他有名称冲突的
 
 建议安装.net 8 sdk，方便使用最新的语法。
 开发工具可以使用vscode, visual studio 或者 rider。
-示例工程可以参考CSharpModExample
+Mod 模板可以参考[模板仓库](https://github.com/BlackMythWukongMods/B1.Mod.Template)的 Readme 进行安装使用
 
 ### mod入口
 

@@ -1,89 +1,103 @@
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace CSharpModBase.Input
+namespace CSharpModBase.Input;
+
+public static class KeyUtils
 {
-    public static class KeyUtils
+    public static ModifierKeys Modifiers
     {
-        /// <summary>
-        /// Keys转字符串，支持组合键
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static string KeyToString(ModifierKeys modifiers, Key key, List<string> buf)
+        get
         {
-            if (modifiers.HasFlag(ModifierKeys.Control)) buf.Add("Ctrl");
-            if (modifiers.HasFlag(ModifierKeys.Shift)) buf.Add("Shift");
-            if (modifiers.HasFlag(ModifierKeys.Alt)) buf.Add("Alt");
-            string? keyCodeStr = null;
-            char oemKeyChar = OemKeyChar(key);
-            if (oemKeyChar != default) {
-                keyCodeStr = oemKeyChar.ToString();
-            } else {
-                keyCodeStr = key switch
-                {
-                    Key.None => "",
-                    _ => key.ToString(),
-                };
-            }
-            if (keyCodeStr != null)
+            var modifiers = ModifierKeys.None;
+            if (GetKeyState((uint)Key.MENU) < 0)
             {
-                buf.Add(keyCodeStr);
+                modifiers |= ModifierKeys.Alt;
             }
-            return string.Join("+", buf);
+
+            if (GetKeyState((uint)Key.CONTROL) < 0)
+            {
+                modifiers |= ModifierKeys.Control;
+            }
+
+            if (GetKeyState((uint)Key.SHIFT) < 0)
+            {
+                modifiers |= ModifierKeys.Shift;
+            }
+
+            return modifiers;
+        }
+    }
+
+    /// <summary>
+    ///     Keys转字符串，支持组合键
+    /// </summary>
+    /// <param name="modifiers"></param>
+    /// <param name="key"></param>
+    /// <param name="buf"></param>
+    /// <returns></returns>
+    public static string KeyToString(ModifierKeys modifiers, Key key, List<string> buf)
+    {
+        if (modifiers.HasFlag(ModifierKeys.Control))
+        {
+            buf.Add("Ctrl");
         }
 
-        public static string KeyToString(ModifierKeys modifiers, Key key)
+        if (modifiers.HasFlag(ModifierKeys.Shift))
         {
-            return KeyToString(modifiers, key, new());
+            buf.Add("Shift");
         }
 
-        public static char OemKeyChar(Key key)
+        if (modifiers.HasFlag(ModifierKeys.Alt))
         {
-            return key switch
+            buf.Add("Alt");
+        }
+
+        string? keyCodeStr;
+        var oemKeyChar = OemKeyChar(key);
+        if (oemKeyChar != default)
+        {
+            keyCodeStr = oemKeyChar.ToString();
+        }
+        else
+        {
+            keyCodeStr = key switch
             {
-                Key.OEM_PLUS => '+',
-                Key.OEM_COMMA => ',',
-                Key.OEM_MINUS => '-',
-                Key.OEM_PERIOD => '.',
-                Key.OEM_1 => ';',
-                Key.OEM_2 => '/',
-                Key.OEM_3 => '`',
-                Key.OEM_4 => '[',
-                Key.OEM_5 => '\\',
-                Key.OEM_6 => ']',
-                Key.OEM_7 => '\'',
-                _ => default,
+                Key.None => "",
+                _ => key.ToString()
             };
         }
 
-        [DllImport("user32.dll")]
-        private static extern short GetKeyState(uint vk);
-
-        public static bool IsKeyDown(Key key)
+        if (keyCodeStr != null)
         {
-            return GetKeyState((uint)key) < 0;
+            buf.Add(keyCodeStr);
         }
 
-        public static ModifierKeys Modifiers
-        {
-            get
-            {
-                ModifierKeys modifiers = ModifierKeys.None;
-                if (GetKeyState((uint)Key.MENU) < 0)
-                {
-                    modifiers |= ModifierKeys.Alt;
-                }
-                if (GetKeyState((uint)Key.CONTROL) < 0)
-                {
-                    modifiers |= ModifierKeys.Control;
-                }
-                if (GetKeyState((uint)Key.SHIFT) < 0)
-                {
-                    modifiers |= ModifierKeys.Shift;
-                }
-                return modifiers;
-            }
-        }
+        return string.Join("+", buf);
     }
+
+    public static string KeyToString(ModifierKeys modifiers, Key key) => KeyToString(modifiers, key, new List<string>());
+
+    public static char OemKeyChar(Key key)
+    {
+        return key switch
+        {
+            Key.OEM_PLUS => '+',
+            Key.OEM_COMMA => ',',
+            Key.OEM_MINUS => '-',
+            Key.OEM_PERIOD => '.',
+            Key.OEM_1 => ';',
+            Key.OEM_2 => '/',
+            Key.OEM_3 => '`',
+            Key.OEM_4 => '[',
+            Key.OEM_5 => '\\',
+            Key.OEM_6 => ']',
+            Key.OEM_7 => '\'',
+            _ => default
+        };
+    }
+
+    [DllImport("user32.dll")]
+    private static extern short GetKeyState(uint vk);
+
+    public static bool IsKeyDown(Key key) => GetKeyState((uint)key) < 0;
 }

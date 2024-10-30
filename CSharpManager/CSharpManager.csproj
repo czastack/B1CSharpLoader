@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="move /Y $(TargetPath) $(OutDir)CSharpManager.bin" />
+    <Exec Command='move /Y "$(TargetPath)" "$(OutDir)CSharpManager.bin"' />
   </Target>
 
   <ItemGroup>
